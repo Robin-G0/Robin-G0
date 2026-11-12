@@ -12,6 +12,11 @@ from urllib.error import URLError
 from urllib.parse import quote, urlencode
 import urllib.request
 
+if __package__:
+    from .line_filters import VERSION as LINE_FILTER_VERSION, exclusions
+else:
+    from line_filters import VERSION as LINE_FILTER_VERSION, exclusions
+
 
 class CollectionError(RuntimeError):
     """A refresh must fail instead of publishing incomplete totals."""
@@ -42,10 +47,7 @@ def git(*args):
         raise CollectionError('Public repository history could not be read; no partial totals were published.') from None
 
 
-def line_changes(bare):
-    """Get added/deleted lines per non-merge SHA, without file contents."""
-    output = git('-C', str(bare), 'log', '--no-merges', '--no-ext-diff', '--no-textconv',
-                 '--format=commit:%H', '--shortstat', 'HEAD').decode('utf-8', errors='replace')
+def parse_changes(output):
     changes = {}
     current = None
     for line in output.splitlines():
@@ -60,6 +62,18 @@ def line_changes(bare):
     return changes
 
 
+def line_changes(bare, extra_exclusions=()):
+    """Keep all commit IDs, but count only changes outside excluded paths."""
+    args = ('-C', str(bare), 'log', '--full-history', '--no-merges', '--no-ext-diff', '--no-textconv',
+            '--format=commit:%H')
+    all_ids = git(*args, '--no-patch', 'HEAD').decode('utf-8', errors='replace')
+    filtered = git(*args, '--shortstat', 'HEAD', '--', '.',
+                   *exclusions(extra_exclusions)).decode('utf-8', errors='replace')
+    filtered_changes = parse_changes(filtered)
+    # Dataset-only commits still contribute to the commit count, with zero lines.
+    return {sha: filtered_changes.get(sha, (0, 0)) for sha in parse_changes(all_ids)}
+
+
 def commits_for_repo(repo, author):
     """Filter default-branch history to commits associated with the GitHub user."""
     if repo.get('size') == 0:
@@ -71,7 +85,8 @@ def commits_for_repo(repo, author):
         git('clone', '--bare', '--single-branch', '--branch', repo['default_branch'],
             '--', url, str(bare))
         head = git('-C', str(bare), 'rev-parse', 'HEAD').decode().strip()
-        changes = line_changes(bare)
+        extra = ('themes/**', 'assets/stats.json', 'assets/theme.json') if repo['name'].casefold() == author.casefold() else ()
+        changes = line_changes(bare, extra_exclusions=extra)
         page = 1
         while True:
             query = urlencode(dict(sha=head, author=author, per_page=100, page=page))
@@ -110,17 +125,17 @@ def collect(user):
             seen.add(commit['oid'])
             additions += commit['additions']
             deletions += commit['deletions']
-    return dict(schema=3, status='ready', user=user,
+    return dict(schema=4, status='ready', user=user,
                 updated=datetime.now(timezone.utc).strftime('%Y-%m-%d'),
                 repositories=len(repos), commits=len(seen), additions=additions,
                 deletions=deletions, lines_changed=additions + deletions,
                 languages=dict(sorted(languages.items(), key=lambda item: (-item[1], item[0]))),
-                language_unit='bytes', scope='owned_public',
+                language_unit='bytes', scope='owned_public', line_filter_version=LINE_FILTER_VERSION,
                 history='authored_non_merge_commits_on_default_branches_deduplicated')
 
 
 def pending(user):
-    return dict(schema=3, status='awaiting_collection', user=user, updated=None,
+    return dict(schema=4, status='awaiting_collection', user=user, updated=None,
                 repositories=None, commits=None, additions=None, deletions=None,
-                lines_changed=None, languages={}, language_unit='bytes', scope='owned_public',
+                lines_changed=None, languages={}, language_unit='bytes', scope='owned_public', line_filter_version=LINE_FILTER_VERSION,
                 history='authored_non_merge_commits_on_default_branches_deduplicated')

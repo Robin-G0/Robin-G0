@@ -94,14 +94,62 @@ class CollectionTests(unittest.TestCase):
             head = git('rev-parse', 'HEAD')
             self.assertEqual(stats.line_changes(tmp), {head: (0, 1), root: (3, 0)})
 
+    def test_filtered_lines_exclude_data_but_keep_dataset_only_commits(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            def git(*args):
+                return subprocess.run(['git', '-C', tmp, *args], check=True, capture_output=True).stdout.decode().strip()
+            git('init', '--initial-branch=main')
+            git('config', 'user.name', 'Test')
+            git('config', 'user.email', 'test@example.invalid')
+            git('config', 'core.autocrlf', 'false')
+            for filename in ('src/main.py', 'README.md', 'datasets/input.txt', 'model.nn',
+                             'frontend/node_modules/library.js', 'package-lock.json',
+                             'build/generated.cpp', 'data.csv', 'image.ppm', 'diagram.svg'):
+                path = Path(tmp) / filename
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b'one\ntwo\nthree\n')
+            git('add', '.')
+            git('commit', '-m', 'code and generated data')
+            root = git('rev-parse', 'HEAD')
+            (Path(tmp) / 'datasets/input.txt').write_bytes(b'one\ntwo\n')
+            git('commit', '-am', 'dataset only')
+            head = git('rev-parse', 'HEAD')
+            self.assertEqual(stats.line_changes(tmp), {head:(0,0), root:(6,0)})
+
+    def test_filtered_history_keeps_source_edits_reverted_before_merge(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            def git(*args):
+                return subprocess.run(['git', '-C', tmp, *args], check=True, capture_output=True).stdout.decode().strip()
+            git('init', '--initial-branch=main')
+            git('config', 'user.name', 'Test')
+            git('config', 'user.email', 'test@example.invalid')
+            git('config', 'core.autocrlf', 'false')
+            (Path(tmp)/'README.md').write_bytes(b'base\n')
+            git('add', '.')
+            git('commit', '-m', 'base')
+            git('checkout', '-b', 'feature')
+            (Path(tmp)/'experiment.py').write_bytes(b'print(1)\n')
+            git('add', '.')
+            git('commit', '-m', 'experiment')
+            added = git('rev-parse', 'HEAD')
+            git('rm', 'experiment.py')
+            git('commit', '-m', 'undo experiment')
+            removed = git('rev-parse', 'HEAD')
+            git('checkout', 'main')
+            git('merge', '--no-ff', 'feature', '-m', 'merge')
+            changes = stats.line_changes(tmp)
+            self.assertEqual(changes[added], (1,0))
+            self.assertEqual(changes[removed], (0,1))
+
 
 class DisplayTests(unittest.TestCase):
     def test_all_languages_shown_by_bytes_and_pending_is_not_zero(self):
         theme = variants(THEMES[0])['light']
         pending = render_stats(theme, stats.pending('Robin-G0'))
         self.assertIn('pending collection', pending)
+        visible = ' '.join(''.join(node.itertext()) for node in ET.fromstring(pending).iter('{http://www.w3.org/2000/svg}text'))
         for hidden in ('stars', 'forks', 'private'):
-            self.assertNotIn(hidden, pending)
+            self.assertNotIn(hidden, visible)
         languages = {'C++': 800, 'Python': 200, **{f'Language {i}': 1 for i in range(8)}}
         data = dict(stats.pending('Robin-G0'), status='ready', updated='2026-11-12',
                     repositories=10, commits=1000, lines_changed=10000, languages=languages)
@@ -117,10 +165,10 @@ class DisplayTests(unittest.TestCase):
             svg = flight(variants(identity)['light'])
             self.assertNotIn('animation: signal', svg)
             self.assertNotIn('class="route"', svg)
-            self.assertIn('offset-rotate: reverse', svg)
+            self.assertRegex(svg, r'offset-rotate:\s*reverse')
             root = ET.fromstring(svg)
             routes = [p for p in root.iter('{http://www.w3.org/2000/svg}path')
-                      if p.get('d') == 'M 180 236 C 320 130 580 130 720 236']
+                      if p.get('data-flight-route') == 'true']
             self.assertEqual(len(routes), 1)
 
 

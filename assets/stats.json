@@ -1,13 +1,13 @@
 {
-  "schema": 3,
+  "schema": 4,
   "status": "ready",
   "user": "Robin-G0",
   "updated": "2026-11-12",
   "repositories": 10,
   "commits": 832,
-  "additions": 12262528,
-  "deletions": 7921734,
-  "lines_changed": 20184262,
+  "additions": 108421,
+  "deletions": 29727,
+  "lines_changed": 138148,
   "languages": {
     "C++": 1593517,
     "JavaScript": 722145,
@@ -29,5 +29,6 @@
   },
   "language_unit": "bytes",
   "scope": "owned_public",
+  "line_filter_version": 1,
   "history": "authored_non_merge_commits_on_default_branches_deduplicated"
 }

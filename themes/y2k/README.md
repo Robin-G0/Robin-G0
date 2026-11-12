@@ -7,13 +7,13 @@
 <!-- theme-gallery:end -->
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/theme-dark.svg?v=2026-11-12-y2k">
-  <img src="assets/theme-light.svg?v=2026-11-12-y2k" alt="Fixed visual theme preview, era and update date" width="900">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/theme-dark.svg?v=2026-11-12-y2k-04bd5d9251ec">
+  <img src="assets/theme-light.svg?v=2026-11-12-y2k-04bd5d9251ec" alt="Fixed visual theme preview, era and update date" width="900">
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/flight-dark.svg?v=2026-11-12-y2k">
-  <img src="assets/flight-light.svg?v=2026-11-12-y2k" alt="Robin-G0 — an airplane travelling back and forth between Canada and France" width="900">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/flight-dark.svg?v=2026-11-12-y2k-04bd5d9251ec">
+  <img src="assets/flight-light.svg?v=2026-11-12-y2k-04bd5d9251ec" alt="Robin-G0 — an airplane travelling back and forth between Canada and France" width="900">
 </picture>
 
 I'm a **Software Engineer focused on R&D**, exploring computer vision, systems, and quantum computing.
@@ -24,18 +24,21 @@ I'm a **Software Engineer focused on R&D**, exploring computer vision, systems, 
 
 <a href="https://github.com/Robin-G0/Motion-Input-Grid">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/mig-dark.svg?v=2026-11-12-y2k">
-    <img src="assets/mig-light.svg?v=2026-11-12-y2k" alt="Motion Input Grid: turn tracked body movements into actions for websites, desktop applications and games. Currently looking for testers. Explore the project." width="900">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/mig-dark.svg?v=2026-11-12-y2k-04bd5d9251ec">
+    <img src="assets/mig-light.svg?v=2026-11-12-y2k-04bd5d9251ec" alt="Motion Input Grid: turn tracked body movements into actions for websites, desktop applications and games. Currently looking for testers. Explore the project." width="900">
   </picture>
 </a>
 
-**[Try the interactive demo](https://robin-g0.github.io/Motion-Input-Grid/)** · [Open Studio](https://robin-g0.github.io/Motion-Input-Grid/studio/) · [Source code](https://github.com/Robin-G0/Motion-Input-Grid)
+<p>
+<a href="https://github.com/Robin-G0/Motion-Input-Grid"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/button-source-dark.svg?v=2026-11-12-y2k-04bd5d9251ec"><img src="assets/button-source-light.svg?v=2026-11-12-y2k-04bd5d9251ec" alt="Project source" width="250"></picture></a>
+<a href="https://robin-g0.github.io/Motion-Input-Grid/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/button-demo-dark.svg?v=2026-11-12-y2k-04bd5d9251ec"><img src="assets/button-demo-light.svg?v=2026-11-12-y2k-04bd5d9251ec" alt="Interactive demo" width="250"></picture></a>
+<a href="https://robin-g0.github.io/Motion-Input-Grid/studio/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/button-studio-dark.svg?v=2026-11-12-y2k-04bd5d9251ec"><img src="assets/button-studio-light.svg?v=2026-11-12-y2k-04bd5d9251ec" alt="Open Studio" width="250"></picture></a>
+</p>
 
 ### GitHub activity
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg?v=2026-11-12-y2k">
-  <img src="assets/stats-light.svg?v=2026-11-12-y2k" alt="Public GitHub statistics: repository totals, personal commits, lines added and deleted, and all detected languages with percentages by code size. Detailed values are available in assets/stats.json." width="900">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg?v=2026-11-12-y2k-04bd5d9251ec">
+  <img src="assets/stats-light.svg?v=2026-11-12-y2k-04bd5d9251ec" alt="Public GitHub statistics: repository totals, personal commits, filtered line edits, and all detected languages with percentages by code size. Detailed values are available in assets/stats.json." width="900">
 </picture>
 
-<sub>Owned public repositories only. Languages measured by code size in bytes. Personal non-merge commits on default branches; lines changed = additions + deletions. [View the data](../../assets/stats.json).</sub>
