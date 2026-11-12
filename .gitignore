@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+
+# Personal design review notes; kept locally for subsequent iterations.
+/THEME_FEEDBACK.local.md
