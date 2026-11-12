@@ -1,7 +1,6 @@
 from datetime import timedelta
 import json
 from pathlib import Path
-import re
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -9,6 +8,7 @@ import xml.etree.ElementTree as ET
 
 from scripts import render_profile as render
 from scripts.profile_themes import EPOCH, THEMES, theme_for_day, variants
+from scripts.profile_stats import pending
 
 
 class RotationTests(unittest.TestCase):
@@ -27,8 +27,8 @@ class RotationTests(unittest.TestCase):
             self.assertEqual(set(seen), expected)
 
     def test_all_eras_render_valid_svg_in_both_modes(self):
-        data = dict(updated='2026-11-12', repositories=0, stars=0, forks=0,
-                    languages={'A&B <example>': 1})
+        data = dict(pending('Robin-G0'), status='ready', updated='2026-11-12',
+                    repositories=0, commits=0, lines_changed=0, languages={'A&B <example>': 1})
         for identity in THEMES:
             for theme in variants(identity).values():
                 for svg in (render.theme_banner(theme, EPOCH), render.flight(theme),
@@ -56,7 +56,8 @@ class RotationTests(unittest.TestCase):
             assets = root / 'assets'
             assets.mkdir()
             (root / 'README.md').write_text('<img src="assets/mig-light.svg">', encoding='utf-8')
-            data = dict(updated='2026-10-01', repositories=0, stars=0, forks=0, languages={})
+            data = dict(pending('Robin-G0'), status='ready', updated='2026-10-01',
+                        repositories=0, commits=0, lines_changed=0)
             (assets / 'stats.json').write_text(json.dumps(data), encoding='utf-8')
             (assets / 'theme.json').write_text('{"selected":"2026-11-12"}', encoding='utf-8')
             with patch.multiple(render, ROOT=root, ASSETS=assets,

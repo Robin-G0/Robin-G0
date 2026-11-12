@@ -5,53 +5,23 @@ saved snapshot. All graphics share the palette below, ready for the Pages site.
 """
 
 import argparse
-from collections import Counter
 from datetime import date, datetime, timezone
 import json
-import os
 from pathlib import Path
 import re
-import urllib.request
 from xml.sax.saxutils import escape
 
 if __package__:
     from .profile_themes import decoration, theme_for_day, variants
+    from .profile_stats import CollectionError, collect, pending
 else:
     from profile_themes import decoration, theme_for_day, variants
+    from profile_stats import CollectionError, collect, pending
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
 SNAPSHOT = ASSETS / "stats.json"
 THEME_STATE = ASSETS / "theme.json"
-
-
-def api(path):
-    headers = {"Accept": "application/vnd.github+json", "User-Agent": "Robin-G0-profile"}
-    if token := os.environ.get("GH_TOKEN"):
-        headers["Authorization"] = f"Bearer {token}"
-    req = urllib.request.Request(f"https://api.github.com{path}", headers=headers)
-    with urllib.request.urlopen(req, timeout=30) as response:
-        return json.load(response)
-
-
-def collect(user):
-    repos = []
-    page = 1
-    while True:
-        batch = api(f"/users/{user}/repos?type=owner&per_page=100&page={page}")
-        repos.extend(r for r in batch if not r["fork"] and not r["private"])
-        if len(batch) < 100:
-            break
-        page += 1
-    languages = Counter(r["language"] for r in repos if r.get("language"))
-    return {
-        "user": user,
-        "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        "repositories": len(repos),
-        "stars": sum(r["stargazers_count"] for r in repos),
-        "forks": sum(r["forks_count"] for r in repos),
-        "languages": dict(languages.most_common()),
-    }
 
 
 def text(x, y, value, cls="", size=16, extra=""):
@@ -86,7 +56,6 @@ def flight(t):
     body += text(36, 93, "Ideas in motion.", size=42, extra='font-weight="700"')
     body += text(36, 124, "Software engineering · Research & development", "muted", 18)
     body += f'<path d="{route}" fill="none" stroke="{t["border"]}" stroke-width="2" stroke-dasharray="4 8"/>'
-    body += f'<path d="{route}" class="route" fill="none" stroke="{t["accent"]}" stroke-width="2" pathLength="1" stroke-dasharray=".06 .94"/>'
     for x, name, code in [(180, "CANADA", "CA"), (720, "FRANCE", "FR")]:
         body += f'<circle cx="{x}" cy="236" r="7" fill="{t["soft"]}" stroke="{t["accent"]}" stroke-width="2"/>'
         body += text(x, 274, name, "mono", 14, 'text-anchor="middle"')
@@ -97,9 +66,7 @@ def flight(t):
 </g></g>'''
     # CSS offset-path keeps reduced-motion support in the same image.
     css = f'''.aircraft {{ offset-path: path('{route}'); offset-rotate: auto; offset-distance: 50%; animation: flight 16s linear infinite; }}
-@keyframes flight {{ 0%, 6% {{ offset-distance: 0%; offset-rotate: auto; }} 44%, 49% {{ offset-distance: 100%; offset-rotate: auto; }} 50%, 56% {{ offset-distance: 100%; offset-rotate: reverse; }} 94%, 99% {{ offset-distance: 0%; offset-rotate: reverse; }} 100% {{ offset-distance: 0%; offset-rotate: auto; }} }}
-.route {{ animation: signal 4s linear infinite; }}
-@keyframes signal {{ to {{ stroke-dashoffset: -1; }} }}'''
+@keyframes flight {{ 0%, 6% {{ offset-distance: 0%; offset-rotate: auto; }} 44%, 49% {{ offset-distance: 100%; offset-rotate: auto; }} 50%, 56% {{ offset-distance: 100%; offset-rotate: reverse; }} 94%, 99% {{ offset-distance: 0%; offset-rotate: reverse; }} 100% {{ offset-distance: 0%; offset-rotate: auto; }} }}'''
     return card(t, 328, "Robin-G0 — an airplane travels between Canada and France", body, css)
 
 
@@ -131,30 +98,35 @@ def mig(t):
 
 def stats(t, data):
     body = text(36, 43, "02 / GITHUB SIGNAL", "mono", 12)
-    body += text(864, 43, f"UPDATED {data['updated']} UTC", "mono", 10, 'text-anchor="end"')
-    values = [(data["repositories"], "public repositories"), (data["stars"], "stars received"),
-              (data["forks"], "forks received"), (len(data["languages"]), "primary languages")]
+    ready = data['status'] == 'ready'
+    timestamp = f"UPDATED {data['updated']} UTC" if ready else 'NOT YET COLLECTED'
+    body += text(864, 43, timestamp, "mono", 10, 'text-anchor="end"')
+    values = [(data['repositories'], 'public repositories'),
+              (data['commits'], 'commits · authored, non-merge'),
+              (data['lines_changed'], 'lines changed · added + deleted')]
     for i, (value, label) in enumerate(values):
-        x = 36 + i * 216
-        body += text(x, 111, f"{value:,}", "accent", 42, 'font-weight="700"')
-        body += text(x, 140, label, "muted", 13)
-    body += text(36, 191, "Primary language · share of repositories", "muted", 14)
-    languages = list(data["languages"].items())
-    top = languages[:5]
-    if len(languages) > 5:
-        top.append(("Other", sum(n for _, n in languages[5:])))
+        x = 36 + i * 282
+        formatted = f'{value:,}' if value is not None else '—'
+        body += text(x, 111, formatted, "accent", min(40, 250 / max(len(formatted) * .63, 1)), 'font-weight="700"')
+        body += text(x, 140, label, "muted", 11)
+    body += text(36, 191, "Languages · share of code size", "muted", 14)
+    languages = sorted(data['languages'].items(), key=lambda item: (-item[1], item[0]))
     total = sum(data["languages"].values()) or 1
-    for i, (name, n) in enumerate(top):
+    for i, (name, n) in enumerate(languages):
         y = 223 + i * 30
         body += text(36, y, name, size=13)
         body += f'<rect x="190" y="{y-10}" width="590" height="9" rx="4" fill="{t["soft"]}"/>'
         body += f'<rect x="190" y="{y-10}" width="{590*n/total:.2f}" height="9" rx="4" fill="{t["accent"]}" class="bar" style="animation-delay:{i*.12}s"/>'
-        body += text(864, y, f"{n/total:.0%}", "muted", 13, 'text-anchor="end"')
-    foot = 239 + len(top) * 30
-    body += text(36, foot, "Owned public repositories only · forks excluded · language share is by repository count", "muted", 11)
+        percent = f'{n/total:.1%}' if n / total >= .001 else '<0.1%'
+        body += text(864, y, percent, "muted", 13, 'text-anchor="end"')
+    if not languages:
+        body += text(36, 229, 'No detected languages.' if ready else 'Public statistics pending collection.', 'muted', 14)
+    foot = 259 + max(1, len(languages)) * 30
+    body += text(36, foot, "Owned public repositories only · language share measured in bytes", "muted", 11)
+    body += text(36, foot + 20, "Personal history on default branches · duplicate commits counted once", "muted", 11)
     css = '''.bar { transform-box: fill-box; transform-origin: left; animation: fill 1.5s ease-out backwards; }
 @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }'''
-    return card(t, foot + 26, "GitHub public repository statistics", body, css)
+    return card(t, foot + 46, "Public GitHub languages, personal commits, lines changed and repository totals", body, css)
 
 
 def theme_banner(t, selected):
@@ -194,6 +166,9 @@ def main():
         data = collect(args.user)
     else:
         data = json.loads(SNAPSHOT.read_text(encoding="utf-8")) if SNAPSHOT.exists() else None
+    # Discard older snapshots that could include private aggregates.
+    if not data or data.get('schema') != 3 or data.get('scope') != 'owned_public':
+        data = pending(args.user)
     # Offline renders preserve the selection instead of silently changing the day.
     if args.date:
         selected = args.date
@@ -202,7 +177,7 @@ def main():
     elif THEME_STATE.exists():
         selected = date.fromisoformat(json.loads(THEME_STATE.read_text(encoding='utf-8'))['selected'])
     else:
-        selected = date.fromisoformat(data['updated']) if data else datetime.now(timezone.utc).date()
+        selected = date.fromisoformat(data['updated']) if data.get('updated') else datetime.now(timezone.utc).date()
     identity = theme_for_day(selected)
     rendered = {}
     for name, theme in variants(identity).items():
@@ -220,9 +195,11 @@ def main():
     for filename, content in rendered.items():
         (ASSETS / filename).write_text(content, encoding='utf-8')
     readme_path.write_text(readme, encoding='utf-8')
-    if args.refresh:
-        SNAPSHOT.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    SNAPSHOT.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except CollectionError as error:
+        raise SystemExit(str(error)) from None

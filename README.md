@@ -31,7 +31,7 @@ I'm a **Software Engineer focused on R&D**, exploring computer vision, systems, 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg?v=2026-11-12-metro">
-  <img src="assets/stats-light.svg?v=2026-11-12-metro" alt="GitHub statistics: public repositories, stars and forks received, and primary language distribution. Detailed values are also available in assets/stats.json." width="900">
+  <img src="assets/stats-light.svg?v=2026-11-12-metro" alt="Public GitHub statistics: repository totals, personal commits, lines added and deleted, and all detected languages with percentages by code size. Detailed values are available in assets/stats.json." width="900">
 </picture>
 
-<sub>Updated daily from owned public repositories, excluding forks. Language percentages represent repository counts, not lines of code. [View the data](assets/stats.json).</sub>
+<sub>Owned public repositories only. Languages measured by code size in bytes. Personal non-merge commits on default branches; lines changed = additions + deletions. [View the data](assets/stats.json).</sub>

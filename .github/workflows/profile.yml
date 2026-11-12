@@ -12,7 +12,7 @@ on:
       - .github/workflows/profile.yml
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: profile-graphics
@@ -21,11 +21,12 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -33,8 +34,30 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Collect public statistics and render SVGs
         env:
-          GH_TOKEN: ${{ github.token }}
+          PUBLIC_API_TOKEN: ${{ github.token }}
         run: python scripts/render_profile.py --refresh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-profile-graphics
+          path: |
+            assets/
+            README.md
+          retention-days: 1
+
+  publish:
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: public-profile-graphics
+          path: .
       - name: Save graphics
         run: |
           git config user.name 'github-actions[bot]'

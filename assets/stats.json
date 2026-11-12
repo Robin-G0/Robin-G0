@@ -1,14 +1,33 @@
 {
+  "schema": 3,
+  "status": "ready",
   "user": "Robin-G0",
   "updated": "2026-11-12",
   "repositories": 10,
-  "stars": 9,
-  "forks": 0,
+  "commits": 830,
+  "additions": 12259433,
+  "deletions": 7921583,
+  "lines_changed": 20181016,
   "languages": {
-    "C++": 3,
-    "Python": 3,
-    "C": 1,
-    "TypeScript": 1,
-    "HTML": 1
-  }
+    "C++": 1593517,
+    "JavaScript": 722145,
+    "Python": 393527,
+    "C": 170685,
+    "TypeScript": 129696,
+    "CMake": 64570,
+    "CSS": 57446,
+    "HTML": 50479,
+    "PowerShell": 35839,
+    "Luau": 33688,
+    "Shell": 21184,
+    "C#": 12070,
+    "Makefile": 6639,
+    "Java": 5025,
+    "Dockerfile": 1866,
+    "GLSL": 1243,
+    "GDScript": 27
+  },
+  "language_unit": "bytes",
+  "scope": "owned_public",
+  "history": "authored_non_merge_commits_on_default_branches_deduplicated"
 }
