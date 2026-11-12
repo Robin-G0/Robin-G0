@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="130" viewBox="0 0 900 130" role="img" aria-labelledby="title">
+<title id="title">Preview: Frutiger Aero, inspired by 2004–2012, updated 2026-11-12 UTC</title>
+<style>
+text { font-family: Trebuchet MS, sans-serif; fill: #e5faff; }
+.mono { font-family: Consolas, 'Liberation Mono', monospace; letter-spacing: 2px; fill: #a3cddc; }
+.muted { fill: #a3cddc; }
+.accent { fill: #83dbff; }
+.gold { fill: #d1f58e; }
+
+.bubble { animation: bubble 5s ease-in-out infinite; } @keyframes bubble { 50% { transform: translateY(-6px); } } .bar { filter: drop-shadow(0 2px 1px #55889955); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } .trail { stroke-dashoffset: 0 !important; } }
+</style>
+<rect x="1" y="1" width="898" height="128" rx="24" fill="#102c40" stroke="#407a95"/>
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#83dbff" stop-opacity=".16"/><stop offset="1" stop-color="#204d65" stop-opacity="0"/></linearGradient></defs><rect x="2" y="2" width="896" height="126" rx="24" fill="url(#sky)"/><path d="M3 104 Q210 65 450 105 T897 95 V128 H3Z" fill="#d1f58e" opacity=".12"/><circle cx="821" cy="55" r="22" fill="#fff" fill-opacity=".1" stroke="#83dbff" stroke-opacity=".2" class="bubble"/><circle cx="855" cy="100" r="11" fill="#fff" fill-opacity=".1" stroke="#83dbff" stroke-opacity=".2" class="bubble"/><circle cx="565" cy="75" r="14" fill="#fff" fill-opacity=".1" stroke="#83dbff" stroke-opacity=".2" class="bubble"/>
+<text x="36" y="43" class="mono" font-size="11" >THEME PREVIEW / APERCU DU THEME</text><text x="36" y="78" class="" font-size="27" font-weight="700">Frutiger Aero</text><text x="864" y="78" class="muted" font-size="13" text-anchor="end">2004–2012</text><text x="36" y="108" class="muted" font-size="12" >Preview updated 2026-11-12 · fixed identity · UTC</text>
+</svg>

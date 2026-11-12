@@ -2,6 +2,10 @@
 <sub>Current theme: <strong>Metro</strong> · 2012–2016 · Selected 2026-11-12 (UTC)</sub>
 <!-- current-theme:end -->
 
+<!-- theme-gallery:start -->
+[Explore all visual themes →](themes/README.md)
+<!-- theme-gallery:end -->
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/theme-dark.svg?v=2026-11-12-metro">
   <img src="assets/theme-light.svg?v=2026-11-12-metro" alt="Current visual theme, era and selection date" width="900">

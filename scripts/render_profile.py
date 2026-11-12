@@ -12,10 +12,10 @@ import re
 from xml.sax.saxutils import escape
 
 if __package__:
-    from .profile_themes import decoration, theme_for_day, variants
+    from .profile_themes import THEMES, decoration, theme_for_day, variants
     from .profile_stats import CollectionError, collect, pending
 else:
-    from profile_themes import decoration, theme_for_day, variants
+    from profile_themes import THEMES, decoration, theme_for_day, variants
     from profile_stats import CollectionError, collect, pending
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -129,19 +129,21 @@ def stats(t, data):
     return card(t, foot + 46, "Public GitHub languages, personal commits, lines changed and repository totals", body, css)
 
 
-def theme_banner(t, selected):
-    body = text(36, 43, "CURRENT THEME / THEME DU JOUR", "mono", 11)
+def theme_banner(t, selected, preview=False):
+    heading = 'THEME PREVIEW / APERCU DU THEME' if preview else 'CURRENT THEME / THEME DU JOUR'
+    body = text(36, 43, heading, "mono", 11)
     body += text(36, 78, t['name'], size=27, extra='font-weight="700"')
     body += text(864, 78, t['era'], "muted", 13, 'text-anchor="end"')
-    body += text(36, 108, f"Selected {selected.isoformat()} · daily rotation · UTC", "muted", 12)
-    return card(t, 130, f"Current theme: {t['name']}, inspired by {t['era']}, selected {selected.isoformat()} UTC", body)
+    detail = f'Preview updated {selected.isoformat()} · fixed identity · UTC' if preview else f'Selected {selected.isoformat()} · daily rotation · UTC'
+    body += text(36, 108, detail, "muted", 12)
+    return card(t, 130, f"{'Preview' if preview else 'Current theme'}: {t['name']}, inspired by {t['era']}, updated {selected.isoformat()} UTC", body)
 
 
-def themed_readme(readme, theme, selected):
+def themed_readme(readme, theme, selected, preview=False):
     """A Markdown label stays readable without loading the decorative banner."""
     block = (f"<!-- current-theme:start -->\n"
-             f"<sub>Current theme: <strong>{theme['name']}</strong> · {theme['era']} · "
-             f"Selected {selected.isoformat()} (UTC)</sub>\n"
+             f"<sub>{'Preview theme' if preview else 'Current theme'}: <strong>{escape(theme['name'])}</strong> · {escape(theme['era'])} · "
+             f"{'Updated' if preview else 'Selected'} {selected.isoformat()} (UTC)</sub>\n"
              f"<!-- current-theme:end -->")
     pattern = r'<!-- current-theme:start -->.*?<!-- current-theme:end -->'
     if re.search(pattern, readme, flags=re.S):
@@ -152,6 +154,77 @@ def themed_readme(readme, theme, selected):
     version = f"{selected.isoformat()}-{theme['id']}"
     return re.sub(r'assets/((?:theme|flight|mig|stats)-(?:light|dark)\.svg)(?:\?v=[^"\s]+)?',
                   lambda m: f'assets/{m[1]}?v={version}', readme)
+
+
+def theme_assets(identity, data, selected, preview=False):
+    rendered = {}
+    for mode, theme in variants(identity).items():
+        cards = dict(theme=theme_banner(theme, selected, preview), flight=flight(theme),
+                     mig=mig(theme), stats=stats(theme, data))
+        rendered.update({f'{kind}-{mode}.svg': svg for kind, svg in cards.items()})
+    return rendered
+
+
+def gallery_navigation(readme, links):
+    block = '<!-- theme-gallery:start -->\n' + links + '\n<!-- theme-gallery:end -->'
+    pattern = r'<!-- theme-gallery:start -->.*?<!-- theme-gallery:end -->'
+    if re.search(pattern, readme, flags=re.S):
+        return re.sub(pattern, lambda _: block, readme, flags=re.S)
+    marker = '<!-- current-theme:end -->'
+    return readme.replace(marker, marker + '\n\n' + block, 1)
+
+
+def theme_row(t, number):
+    body = text(36, 36, f'{number:02} / VISUAL ERAS', 'mono', 10)
+    body += text(36, 70, t['name'], size=28, extra='font-weight="700"')
+    body += text(36, 99, t['era'], 'muted', 12)
+    body += text(864, 99, 'OPEN THEME →', 'accent', 13, 'text-anchor="end"')
+    return card(t, 122, f"Explore {t['name']} — {t['era']}", body)
+
+
+def gallery_outputs(readme, data, selected, identities=None):
+    """One catalog generates every fixed README and its styled index row."""
+    identities = THEMES if identities is None else identities
+    ids = [theme['id'] for theme in identities]
+    if not ids or len(ids) != len(set(ids)) or any(not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', key) for key in ids):
+        raise ValueError('Theme IDs must be unique, nonempty, lowercase URL-safe names.')
+    outputs = {}
+    rows = []
+    for i, identity in enumerate(identities):
+        key = identity['id']
+        base = f'themes/{key}'
+        previous, following = ids[(i-1) % len(ids)], ids[(i+1) % len(ids)]
+        preview = themed_readme(readme, identity, selected, preview=True)
+        preview = gallery_navigation(preview,
+            '[← All themes](../README.md) · [Daily profile](../../README.md) · '
+            f'[← Previous](../{previous}/README.md) · [Next →](../{following}/README.md)')
+        # The same profile content is reused; only image paths and navigation vary.
+        preview = preview.replace('(assets/stats.json)', '(../../assets/stats.json)')
+        preview = preview.replace('alt="Current visual theme, era and selection date"',
+                                  'alt="Fixed visual theme preview, era and update date"')
+        outputs[f'{base}/README.md'] = preview
+        assets = theme_assets(identity, data, selected, preview=True)
+        for mode, theme in variants(identity).items():
+            assets[f'row-{mode}.svg'] = theme_row(theme, i + 1)
+        outputs.update({f'{base}/assets/{name}': svg for name, svg in assets.items()})
+        name = escape(identity['name'], {'"': '&quot;'})
+        rows.append(f'''<tr><td>
+<a href="{key}/README.md"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="{key}/assets/row-dark.svg">
+  <img src="{key}/assets/row-light.svg" alt="{name} — {escape(identity['era'])}. Open this theme." width="900">
+</picture></a><br>
+<a href="{key}/README.md">{name}</a>
+</td></tr>''')
+    outputs['themes/README.md'] = (
+        '# Visual eras\n\n[← Daily profile](../README.md)\n\n'
+        'Explore every implemented theme at any time. Each preview keeps its own '
+        'visual identity and shares the latest public statistics. Opening a preview '
+        'does not change the daily profile.\n\n'
+        f'{len(ids)} themes · previews updated {selected.isoformat()} (UTC). '
+        'Rows follow each theme’s light/dark appearance.\n\n'
+        '<!-- Generated from scripts/profile_themes.py; add themes to that catalog. -->\n'
+        '<table>\n' + '\n'.join(rows) + '\n</table>\n')
+    return outputs
 
 
 def main():
@@ -179,23 +252,23 @@ def main():
     else:
         selected = date.fromisoformat(data['updated']) if data.get('updated') else datetime.now(timezone.utc).date()
     identity = theme_for_day(selected)
-    rendered = {}
-    for name, theme in variants(identity).items():
-        for kind, svg in (("theme", theme_banner(theme, selected)), ("flight", flight(theme)), ("mig", mig(theme))):
-            rendered[f"{kind}-{name}.svg"] = svg
-        if data is not None:
-            rendered[f"stats-{name}.svg"] = stats(theme, data)
+    rendered = theme_assets(identity, data, selected)
     state = dict(id=identity['id'], name=identity['name'], era=identity['era'],
                  selected=selected.isoformat(), timezone='UTC',
                  palette={mode: identity[mode] for mode in ('light', 'dark')})
     rendered['theme.json'] = json.dumps(state, indent=2, ensure_ascii=False) + '\n'
     readme_path = ROOT / 'README.md'
     readme = themed_readme(readme_path.read_text(encoding='utf-8'), identity, selected)
+    readme = gallery_navigation(readme, '[Explore all visual themes →](themes/README.md)')
+    outputs = {f'assets/{filename}': content for filename, content in rendered.items()}
+    outputs.update(gallery_outputs(readme, data, selected))
+    outputs['README.md'] = readme
+    outputs['assets/stats.json'] = json.dumps(data, indent=2) + '\n'
     # Finish collection and rendering before changing any existing files.
-    for filename, content in rendered.items():
-        (ASSETS / filename).write_text(content, encoding='utf-8')
-    readme_path.write_text(readme, encoding='utf-8')
-    SNAPSHOT.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    for filename, content in outputs.items():
+        target = ROOT / filename
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding='utf-8')
 
 
 if __name__ == "__main__":
