@@ -9,6 +9,7 @@
   "deletions": 7921583,
   "lines_changed": 20181016,
   "languages": {
+<<<<<<< HEAD
     "C++": 1593517,
     "JavaScript": 722145,
     "Python": 393527,
@@ -30,4 +31,12 @@
   "language_unit": "bytes",
   "scope": "owned_public",
   "history": "authored_non_merge_commits_on_default_branches_deduplicated"
+=======
+    "Python": 4,
+    "C++": 3,
+    "C": 1,
+    "TypeScript": 1,
+    "HTML": 1
+  }
+>>>>>>> 423b2dbc67d8aa2c5218bbdb840726187bccadad
 }
