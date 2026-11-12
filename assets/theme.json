@@ -1,0 +1,29 @@
+{
+  "id": "metro",
+  "name": "Metro",
+  "era": "2012–2016",
+  "selected": "2026-11-12",
+  "timezone": "UTC",
+  "palette": {
+    "light": {
+      "bg": "#ffffff",
+      "ink": "#162a40",
+      "muted": "#485e73",
+      "border": "#c0cfda",
+      "accent": "#006ca9",
+      "soft": "#d9edf9",
+      "gold": "#7a3d7a",
+      "goldbg": "#f0dff2"
+    },
+    "dark": {
+      "bg": "#101c2d",
+      "ink": "#ffffff",
+      "muted": "#b9cee2",
+      "border": "#3a5474",
+      "accent": "#5fc5ff",
+      "soft": "#123e60",
+      "gold": "#efafff",
+      "goldbg": "#4a2858"
+    }
+  }
+}

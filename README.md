@@ -1,7 +1,37 @@
-## Hi there 👋
+<!-- current-theme:start -->
+<sub>Current theme: <strong>Metro</strong> · 2012–2016 · Selected 2026-11-12 (UTC)</sub>
+<!-- current-theme:end -->
 
-I'm a Software Engineer focused on R&D.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/theme-dark.svg?v=2026-11-12-metro">
+  <img src="assets/theme-light.svg?v=2026-11-12-metro" alt="Current visual theme, era and selection date" width="900">
+</picture>
 
-Building **[MIG](https://github.com/Robin-G0/Motion-Input-Grid)** - currently looking for testers.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/flight-dark.svg?v=2026-11-12-metro">
+  <img src="assets/flight-light.svg?v=2026-11-12-metro" alt="Robin-G0 — an airplane travelling back and forth between Canada and France" width="900">
+</picture>
 
-Exploring computer vision, systems, and quantum computing.
+I'm a **Software Engineer focused on R&D**, exploring computer vision, systems, and quantum computing.
+
+[Explore my website](https://robin-g0.github.io/) · [Browse my projects](https://github.com/Robin-G0?tab=repositories)
+
+### Motion Input Grid
+
+<a href="https://github.com/Robin-G0/Motion-Input-Grid">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/mig-dark.svg?v=2026-11-12-metro">
+    <img src="assets/mig-light.svg?v=2026-11-12-metro" alt="Motion Input Grid: turn tracked body movements into actions for websites, desktop applications and games. Currently looking for testers. Explore the project." width="900">
+  </picture>
+</a>
+
+**[Try the interactive demo](https://robin-g0.github.io/Motion-Input-Grid/)** · [Open Studio](https://robin-g0.github.io/Motion-Input-Grid/studio/) · [Source code](https://github.com/Robin-G0/Motion-Input-Grid)
+
+### GitHub activity
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg?v=2026-11-12-metro">
+  <img src="assets/stats-light.svg?v=2026-11-12-metro" alt="GitHub statistics: public repositories, stars and forks received, and primary language distribution. Detailed values are also available in assets/stats.json." width="900">
+</picture>
+
+<sub>Updated daily from owned public repositories, excluding forks. Language percentages represent repository counts, not lines of code. [View the data](assets/stats.json).</sub>

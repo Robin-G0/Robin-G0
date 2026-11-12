@@ -1,0 +1,47 @@
+name: Refresh profile graphics
+
+on:
+  schedule:
+    - cron: '23 6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/**
+      - tests/**
+      - .github/workflows/profile.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-graphics
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify theme rotation and rendering
+        run: python -m unittest discover -s tests -v
+      - name: Collect public statistics and render SVGs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/render_profile.py --refresh
+      - name: Save graphics
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/ README.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh profile graphics'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
