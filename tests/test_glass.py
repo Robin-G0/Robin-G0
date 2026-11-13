@@ -85,15 +85,14 @@ class GlassTests(unittest.TestCase):
                     self.assertFalse(seen_sources.intersection(sources))
                     self.assertFalse(any(node.get('data-aurora-layer') for node in root.iter()))
                     self.assertTrue(all(node.get('href').startswith('data:image/') for node in images))
-                    self.assertLess(len(document.encode('utf-8')),2_500_000 if section=='about' else 800_000)
+                    self.assertLess(len(document.encode('utf-8')),3_000_000 if section=='about' else 800_000)
                     seen.update(assets)
                     seen_sources.update(sources)
                     ids={node.get('id') for node in root.iter() if node.get('id')}
                     for node in root.iter(SVG+'use'):
                         self.assertIn(node.get('href')[1:],ids)
-                    if section!='about':
-                        foreground=next(node for node in root.iter() if node.get('data-scene-foreground'))
-                        self.assertFalse(any(node.get('filter') for node in foreground.iter()))
+                    foreground=next(node for node in root.iter() if node.get('data-scene-foreground'))
+                    self.assertFalse(any(node.get('filter') for node in foreground.iter()))
 
     def test_water_loop_is_embedded_once_with_a_static_reduced_motion_image(self):
         theme=variants(next(t for t in THEMES if t['id']=='glass'))['light']
@@ -110,7 +109,7 @@ class GlassTests(unittest.TestCase):
     def test_water_gif_is_a_complete_twelve_second_infinite_loop(self):
         data=(Path(__file__).resolve().parents[1]/'assets/art/glass-ocean-water-loop-v1.gif').read_bytes()
         self.assertEqual(data[:6],b'GIF89a')
-        self.assertEqual((int.from_bytes(data[6:8],'little'),int.from_bytes(data[8:10],'little')),(600,300))
+        self.assertEqual((int.from_bytes(data[6:8],'little'),int.from_bytes(data[8:10],'little')),(480,240))
         self.assertIn(b'NETSCAPE2.0\x03\x01\x00\x00',data)
         self.assertLess(len(data),2_000_000)
         offset=13+(3*(2**((data[10]&7)+1)) if data[10]&128 else 0)
@@ -130,9 +129,10 @@ class GlassTests(unittest.TestCase):
             offset+=1
             if marker==0x2c:frames.append(data[start:offset])
         self.assertEqual(offset,len(data)-1)
-        self.assertEqual(len(frames),144)
-        self.assertEqual(duration,1200)
-        self.assertGreater(len(set(frames)),100)
+        self.assertEqual(len(frames),96)
+        # GIF delays use whole centiseconds; 8 fps rounds alternating delays.
+        self.assertAlmostEqual(duration,1200,delta=1)
+        self.assertGreater(len(set(frames)),90)
 
     def test_each_language_has_a_separate_bar_at_its_true_share(self):
         identity=next(t for t in THEMES if t['id']=='glass')

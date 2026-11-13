@@ -4,7 +4,7 @@ WORLDS={
     'flight':dict(name='space',background='glass-space-sky-v1.jpg',foreground='glass-space-earth-v1.png',
                   background_seconds=3600,foreground_seconds=180,placement=(540,88,330,330),base='#050c21',motion='orbital'),
     'about':dict(name='ocean',background='glass-ocean-water-v1.jpg',foreground='glass-ocean-caustics-v1.png',
-                 background_seconds=2400,foreground_seconds=95,placement=(-40,185,980,255),base='#052539',motion='caustics'),
+                 background_seconds=2400,foreground_seconds=24,placement=(-40,185,980,255),base='#052539',motion='caustics'),
     'project':dict(name='abyss',background='glass-abyss-depths-v1.jpg',foreground='glass-abyss-jellyfish-v1.png',
                    background_seconds=4200,foreground_seconds=110,placement=(84,130,230,290),base='#030d1d',motion='jellyfish'),
     'activity':dict(name='lunar',background='glass-lunar-horizon-v1.jpg',foreground='glass-lunar-ledge-v1.png',
@@ -63,8 +63,7 @@ def field(height,section):
 
 def foreground(height,section):
     """Near objects stay in focus in front of the refracting glass surface."""
-    if section=='about':
-        return ''
+    opacity=' opacity=".45"' if section=='about' else ''
     return (f'<g clip-path="url(#glass-frame)" aria-hidden="true" data-scene-foreground="{section}">'
-            f'<g transform="scale(1 {height/440:.4f})"><g class="world-{section}-foreground">'
+            f'<g transform="scale(1 {height/440:.4f})"{opacity}><g class="world-{section}-foreground">'
             '<use href="#world-foreground-image"/></g></g></g>')

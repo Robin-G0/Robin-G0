@@ -533,7 +533,7 @@ def about(t):
     elif k=='material':
         b=R(0,0,900,h,t['soft'])+R(18,15,864,239,t['bg'],7,filter='url(#shadow)')
     elif k=='glass':
-        b=materials.glass_backdrop(h,section='about')+materials.lens(15,15,870,242,h,radius=18,section='about');ink='#fff';mut='#d8e6fa';a='#e5f4ff'
+        b=materials.glass_backdrop(h,section='about')+materials.lens(15,15,870,242,h,radius=18,section='about')+materials.glass_foreground(h,'about');ink='#fff';mut='#d8e6fa';a='#e5f4ff'
     else:
         b=R(0,0,900,h,t['bg'])+R(0,0,900,h,'#b4a98c',opacity='.05',filter='url(#paper)')+P('M29 20H873 M29 252H873',ink,.8)
     x=48 if k in ('desktop95','aqua') else 36;y=89 if k in ('desktop95','aqua') else 64
