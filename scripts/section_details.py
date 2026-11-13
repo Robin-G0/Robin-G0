@@ -42,4 +42,23 @@ def about(t,a):
         b+='<g transform="translate(695 215)"><circle r="28" fill="none" stroke="#2d794b"/><ellipse rx="28" ry="9" fill="none" stroke="#2d794b"/><ellipse rx="10" ry="28" fill="none" stroke="#2d794b"/>'+a.P('M-39 0H39M0 -35V35',accent,.6,opacity='.6')+'<g class="bio-qubit-state">'+a.P('M0 0L18 -21',accent,1.4)+a.C(18,-21,3,'#dbffe8')+'</g></g>'
         css='''.bio-vision-scan{animation:bio-vision-scan 6s linear infinite}.bio-vision-point{animation:bio-vision-lock 4.3s steps(2) infinite}.bio-qubit-state{animation:bio-qubit 12s linear infinite}
 @keyframes bio-vision-scan{from{transform:translateX(0)}to{transform:translateX(365px)}}@keyframes bio-vision-lock{0%,80%,100%{opacity:.45}30%,60%{opacity:1}}@keyframes bio-qubit{to{transform:rotate(360deg)}}'''
+    elif k=='y2k':
+        b+=a.P('M36 199H396L427 224H36Z','#8998bf',1,'url(#chrome)')
+        b+=a.P('M490 199H846L861 224H490Z','#8998bf',1,'url(#chrome)')
+        for i in range(18):
+            h=8+(i*7%13)
+            b+=a.R(52+i*18,211-h/2,8,h,'#324c95',**{'class':'bio-chrome-equalizer','style':f'animation-delay:-{i*.19:.2f}s'})
+        b+='<defs><clipPath id="bio-chrome-track"><path d="M496 203H843L852 220H496Z"/></clipPath><linearGradient id="bio-chrome-glint"><stop stop-color="#7bd7ff" stop-opacity="0"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#7bd7ff" stop-opacity="0"/></linearGradient></defs>'
+        b+='<g clip-path="url(#bio-chrome-track)">'+a.R(496,203,80,17,'url(#bio-chrome-glint)',**{'class':'bio-chrome-glint'})+'</g>'
+        css='''.bio-chrome-equalizer{transform-box:fill-box;transform-origin:center;animation:bio-equalizer 2.4s ease-in-out infinite}.bio-chrome-glint{animation:bio-chrome-glint 5s cubic-bezier(.7,0,.2,1) infinite}
+@keyframes bio-equalizer{0%,100%{transform:scaleY(.4);opacity:.5}40%{transform:scaleY(1);opacity:1}}
+@keyframes bio-chrome-glint{0%,10%{transform:translateX(-80px)}80%,100%{transform:translateX(370px)}}'''
+    elif k=='aqua':
+        b+=a.P('M48 181H850','#b8c9d6',1)
+        b+=a.R(53,201,365,15,'#92a9ba',8,'#728da2')+a.R(55,202,361,12,'url(#gel)',6)
+        b+='<defs><clipPath id="bio-aqua-progress"><rect x="56" y="203" width="359" height="10" rx="5"/></clipPath></defs><g clip-path="url(#bio-aqua-progress)"><g class="bio-aqua-candy">'+a.R(31,202,409,13,'url(#candy)')+'</g></g>'+a.R(59,203,353,3,'#ffffff88',2)
+        b+=a.R(498,207,341,5,'#c1d2de',3,'#8ea7ba')
+        b+='<g class="bio-aqua-slider">'+a.C(523,209,9,'url(#gel)','#447daf')+a.C(520,206,3,'#fff',fill_opacity='.7')+'</g>'
+        css='''.bio-aqua-candy{animation:bio-aqua-candy 1.5s linear infinite}.bio-aqua-slider{animation:bio-aqua-slider 12s ease-in-out infinite}
+@keyframes bio-aqua-candy{to{transform:translateX(24px)}}@keyframes bio-aqua-slider{0%,15%,100%{transform:translateX(0)}45%,65%{transform:translateX(272px)}}'''
     return ('<g data-biography-detail="'+k+'" aria-hidden="true">'+b+'</g>' if b else ''),css

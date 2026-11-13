@@ -55,6 +55,15 @@ class AeroCompositionTests(unittest.TestCase):
         self.assertTrue(any('Tahoma' in (font or '') for font in families))
         self.assertTrue(any('Georgia' in (font or '') for font in families))
 
+    def test_aquarium_uses_a_local_water_loop_and_static_reduced_motion_fallback(self):
+        document=art.about(self.theme);root=ET.fromstring(document)
+        loops=[node for node in root.iter(SVG+'image') if node.get('data-aquarium-loop')]
+        self.assertEqual(len(loops),1)
+        self.assertTrue(loops[0].get('href').startswith('data:image/gif;base64,'))
+        self.assertIn('.aquarium-moving{display:none!important}',document)
+        self.assertIn('.aquarium-still{display:inline!important}',document)
+        self.assertLess(len(document.encode('utf-8')),3_000_000)
+
 
 if __name__=='__main__':
     unittest.main()

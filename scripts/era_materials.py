@@ -14,6 +14,7 @@ def definitions(theme):
     resources = '''
 <linearGradient id="aqua-title" x2="0" y2="1"><stop stop-color="#fcfdff"/><stop offset=".45" stop-color="#edf0f3"/><stop offset="1" stop-color="#c5cbd2"/></linearGradient>
 <linearGradient id="aqua-toolbar" x2="0" y2="1"><stop stop-color="#edf1f5"/><stop offset="1" stop-color="#cbd4dd"/></linearGradient>
+<linearGradient id="chrome-paper" x2="0" y2="1"><stop stop-color="#f8fbff"/><stop offset=".48" stop-color="#e2e8f6"/><stop offset="1" stop-color="#aebbd5"/></linearGradient>
 <linearGradient id="aero-blue" x2="0" y2="1"><stop stop-color="#b9f5ff"/><stop offset=".46" stop-color="#38b6ed"/><stop offset=".5" stop-color="#087cc5"/><stop offset="1" stop-color="#06579e"/></linearGradient>
 <radialGradient id="bubble" cx=".28" cy=".2" r=".8"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".22" stop-color="#d6fbff" stop-opacity=".08"/><stop offset=".73" stop-color="#46a8dd" stop-opacity=".04"/><stop offset=".94" stop-color="#ddffff" stop-opacity=".48"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></radialGradient>
 <pattern id="candy" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-6 24L18 0M6 24L30 0" stroke="#b9edff" stroke-width="5" opacity=".45"/></pattern>
@@ -21,7 +22,7 @@ def definitions(theme):
 <filter id="glass-lens" x="-10%" y="-15%" width="120%" height="130%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".006 .014" numOctaves="2" seed="8" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="42" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="2.5"/><feColorMatrix type="saturate" values="1.35"/></filter>
 <linearGradient id="lens-edge" x2=".8" y2="1"><stop stop-color="#fff" stop-opacity=".95"/><stop offset=".25" stop-color="#e1faff" stop-opacity=".14"/><stop offset=".65" stop-color="#91d9ff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity=".65"/></linearGradient>
 '''
-    needed={'aqua':('aqua-title','aqua-toolbar','candy'),
+    needed={'aqua':('aqua-title','aqua-toolbar','candy'), 'y2k':('chrome-paper',),
             'aero':('aero-blue','bubble'), 'construction':('hatch',),
             'glass':('glass-lens','lens-edge')}.get(theme,())
     return ''.join(node.group(0) for node in re.finditer(r'<(linearGradient|radialGradient|pattern|filter) id="([^"]+)".*?</\1>',resources)

@@ -239,7 +239,7 @@ def button(t,x,y,label,kind=None,w=180):
         return aero.button(t,x,y,label,sys.modules[__name__],w=w)
     if k=='y2k':
         d=f'M{x+10} {y}H{x+w}L{x+w-10} {y+34}H{x}Z'
-        return P(d,'#7d8cac',1,'url(#chrome)')+T(x+w/2,y+23,label.upper(),12,'#182b5b',font='Arial, sans-serif',text_anchor='middle',font_weight='bold',letter_spacing=2)
+        return P(d,'#7d8cac',1,'url(#chrome-paper)')+T(x+w/2,y+23,label.upper(),12,'#182b5b',font='Arial, sans-serif',text_anchor='middle',font_weight='bold',letter_spacing=2)
     if k in ('phosphor','matrix'):
         return R(x,y,w,32,'none',0,a)+T(x+14,y+21,'> '+label,12,a,font=MONO)
     if k=='field-notes':
@@ -363,11 +363,11 @@ def scene_matrix(t,kind):
 
 
 def scene_y2k(t,kind):
-    b=R(0,0,900,420,t['bg'])+P('M0 0H900V51H0Z','none',fill='url(#chrome)')
+    b=R(0,0,900,420,t['bg'])+P('M0 0H900V51H0Z','none',fill='url(#chrome-paper)')
     b+=T(28,31,'RG-00  /  PERSONAL SYSTEM',11,'#203866',font='Arial, sans-serif',letter_spacing=3)
-    css='.orbit{transform-origin:700px 205px;animation:orbit 9s ease-in-out infinite;}@keyframes orbit{50%{transform:rotate(-8deg);}}'+GRID_CSS
+    css='.orbit{transform-origin:700px 205px;animation:orbit 9s ease-in-out infinite;}@keyframes orbit{50%{transform:translateY(-7px) rotate(-5deg);}}'+GRID_CSS
     if kind=='flight':
-        b+=f'<g class="orbit">'+f'<ellipse cx="701" cy="207" rx="157" ry="75" transform="rotate(-35 701 207)" fill="none" stroke="url(#chrome)" stroke-width="24"/>'+C(700,204,80,'#8299de',stroke='#dce4ff')+'</g>'
+        b+='<g class="orbit">'+aero.sprite(sys.modules[__name__],'y2k-chrome-orbit-v1.png',514,87,377,242)+'</g>'
         b+=H(t,30,161,'ROBIN-G0',84,t['ink'])+T(34,202,'SOFTWARE ENGINEER',18,t['accent'],font='Arial, sans-serif',letter_spacing=4)+T(35,231,'Research & development',16,t['muted'])
         b+=P('M34 263H462L491 240',t['accent'],1.5)+T(35,288,'COMPUTER VISION / SYSTEMS / QUANTUM',10,t['muted'],letter_spacing=1)
         f,c=flight_path(t,'M 120 346 C 270 308 451 308 548 346',t['accent'],'jet',15);b+=f;css+=c
@@ -388,7 +388,9 @@ def scene_aqua(t,kind):
     css=GRID_CSS
     if kind=='flight':
         b+=aqua_window(35,28,830,372,'Address Book')+R(36,63,828,336,'url(#pinstripe)',10)
-        b+=R(54,84,235,278,'#dbe6ee',9)+globe(172,191,82,'#4e91ca','#c1e7c7')
+        b+=R(54,84,235,278,'#dbe6ee',9)
+        b+='<g class="aqua-compass">'+aero.sprite(sys.modules[__name__],'aqua-glass-compass-v1.png',76,97,192,192)+'</g>'
+        css+='''.aqua-compass{transform-origin:172px 193px;animation:aqua-compass-settle 12s ease-in-out infinite}@keyframes aqua-compass-settle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}'''
         b+=T(171,318,'Canada ↔ France',16,'#264c70',text_anchor='middle')
         b+=H(t,319,140,'Robin-G0',57,'#182f4b')+T(321,181,'Software Engineer',22,'#315978')+T(322,210,'Research & development',15,'#536d82')
         b+=P('M320 230H824','#b5c4d0',1)+T(321,262,'Computer vision · Systems · Quantum computing',13,'#3a566f')
@@ -403,6 +405,8 @@ def scene_aqua(t,kind):
         css+='.aqua-tab{opacity:0;animation:aqua-tab 6s steps(1) infinite}.aqua-tab-0{opacity:1}@keyframes aqua-tab{0%,32%{opacity:1}33%,100%{opacity:0}}'
         b+=R(44,114,368,258,'#142e42',6)
         b+=grid(126,139,68,'#a9d9ff','#244d68','#19394e')+T(62,355,'Camera input · Gesture recognition',10,'#aacfe5')
+        b+=C(390,128,3,'#ff725b',**{'class':'aqua-camera-light'})
+        css+='''.aqua-camera-light{animation:aqua-camera-light 2.6s ease-in-out infinite}@keyframes aqua-camera-light{0%,100%{opacity:.4}45%,65%{opacity:1}}'''
         b+=H(t,441,155,'Motion Input Grid',34,'#273d52')+T(443,192,'Body movements as application input.',16,'#4d6174')
         b+=T(443,231,'Websites, desktop applications and games.',13,'#4d6174')+T(443,260,'Open source. Testers welcome.',13,'#4d6174')
         b+=button(t,443,303,'Open project',w=181)+T(646,324,'Testers welcome',12,'#536d82')
@@ -610,9 +614,9 @@ def activity(t,data):
     elif k=='y2k':
         h=330+max(len(rows),1)*28;b=R(0,0,900,h,t['bg'])+R(0,0,900,21,'url(#chrome)')+H(t,29,84,'Public activity',45,ink)
         for i,(v,label) in enumerate(values):
-            x=30+i*289;b+=P(f'M{x} 113H{x+269}L{x+256} 219H{x-1}Z','#8895b4',1,'url(#chrome)')+T(x+18,163,v,35,'#192747',font='Arial, sans-serif',font_weight='bold',font_style='italic')+T(x+18,193,label.upper(),10,'#243857',letter_spacing=1)
+            x=30+i*289;b+=P(f'M{x} 113H{x+269}L{x+256} 219H{x-1}Z','#8895b4',1,'url(#chrome-paper)')+T(x+18,163,v,35,'#192747',font='Arial, sans-serif',font_weight='bold',font_style='italic')+T(x+18,193,label.upper(),10,'#243857',letter_spacing=1)
         for i,(name,pct,label) in enumerate(rows):
-            y=267+i*28;b+=T(32,y,name,13,ink)+meter(t,207,y-8,566*pct,9,a,i)+T(870,y,label,12,mut,text_anchor='end')
+            y=267+i*28;b+=T(32,y,name,13,ink)+R(207,y-8,566,9,t['soft'])+meter(t,207,y-8,566*pct,9,a,i)+T(870,y,label,12,mut,text_anchor='end')
         b+=P(f'M30 {h-45}H870',a,1)+T(30,h-20,'PUBLIC DATA',11,mut,letter_spacing=2)
     elif k=='aqua':
         h=258+max(len(rows),1)*28;b=R(0,0,900,h,'#316fae')+aqua_window(16,15,868,h-30,'GitHub Library — Statistics')
@@ -620,7 +624,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(44,129+i*92,label,12,'#3b536b')+T(44,163+i*92,v,26,'#245e91')
         b+=T(235,89,'Language',12,'#344f68')+T(853,89,'Share',12,'#344f68',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
-            y=121+i*28;b+=R(226,y-19,643,28,'#e7eff7' if i%2==0 else '#fff')+C(243,y-5,5,COLORS[i%6])+T(259,y,name,12,'#294b69')+meter(t,433,y-11,337*pct,12,'url(#gel)',i,6)+T(852,y,label,12,'#294b69',text_anchor='end')
+            y=121+i*28;b+=R(226,y-19,643,28,'#e7eff7' if i%2==0 else '#fff')+C(243,y-5,5,COLORS[i%6])+T(259,y,name,12,'#294b69')+R(433,y-11,337,12,'#d4e1ec',6,'#b4c9da')+meter(t,433,y-11,337*pct,12,'url(#gel)',i,6)+T(852,y,label,12,'#294b69',text_anchor='end')
         b+=T(235,h-32,'Public repositories only',10,'#49637a')
     elif k=='metro':
         h=267+math.ceil(max(len(rows),1)/3)*105;b=R(0,0,900,h,t['bg'])+H(t,30,65,'Public activity',45,ink)
@@ -686,7 +690,7 @@ def label_card(t,selected=None,preview=False,number=None):
     elif k=='matrix':
         b=R(0,0,900,h,'#020906')+P('M15 35V14H38 M862 116H885V95',a,2)+T(32,32,head,10,a,font=MONO,letter_spacing=2)+H(t,31,81,name,37,'#d1ffdf')+T(32,109,detail,10,a,font=MONO)+T(866,108,era,11,a,font=MONO,text_anchor='end')
     elif k=='y2k':
-        b=R(0,0,900,h,'url(#chrome)',28)+P('M594 0H900L853 130H544Z','none',fill='#1e3476')+T(30,30,head,10,'#304567',letter_spacing=2)+H(t,27,82,name,41,'#182b57')+T(30,111,detail,10,'#304567')+T(857,103,era,11,'#dce6ff',text_anchor='end')
+        b=R(0,0,900,h,'url(#chrome-paper)',28)+P('M594 0H900L853 130H544Z','none',fill='#1e3476')+T(30,30,head,10,'#304567',letter_spacing=2)+H(t,27,82,name,41,'#182b57')+T(30,111,detail,10,'#304567')+T(857,103,era,11,'#dce6ff',text_anchor='end')
     elif k=='aqua':
         b=aqua_window(2,2,896,125,'Appearance')+H(t,24,87,name,40,'#274b6c')+T(25,112,detail,10,'#4e6982')+T(874,87,era,12,'#4e6982',text_anchor='end')
     elif k=='metro':

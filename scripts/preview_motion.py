@@ -37,10 +37,8 @@ def illustration(t, a):
         body+='</g>'
         css='''.preview-rain{animation:preview-rain 5s linear infinite}@keyframes preview-rain{to{transform:translateY(235px)}}'''
     elif k=='y2k':
-        body='<defs><radialGradient id="preview-orb" cx=".3" cy=".2"><stop stop-color="#fff"/><stop offset=".28" stop-color="#bbc7f5"/><stop offset=".7" stop-color="#5265a7"/><stop offset="1" stop-color="#17234a"/></radialGradient></defs>'
-        body+=a.C(736,52,26,'url(#preview-orb)')
-        body+='<g transform="translate(736 52) rotate(-17)"><g class="preview-chrome-ring"><ellipse rx="84" ry="25" fill="none" stroke="url(#chrome)" stroke-width="8"/>'+a.C(84,0,5,'#e7f6ff')+'</g></g>'
-        css='''.preview-chrome-ring{animation:preview-orbit 9s ease-in-out infinite}@keyframes preview-orbit{0%,100%{transform:scaleY(.7) rotate(-8deg)}50%{transform:scaleY(1.1) rotate(13deg)}}'''
+        body='<g transform="translate(736 49)"><g class="preview-chrome-ring">'+a.aero.sprite(a,'y2k-chrome-orbit-v1.png',-106,-49,212,98)+'</g></g>'
+        css='''.preview-chrome-ring{animation:preview-orbit 9s ease-in-out infinite}@keyframes preview-orbit{0%,100%{transform:translateY(3px) rotate(-3deg)}50%{transform:translateY(-3px) rotate(3deg)}}'''
     elif k=='aqua':
         body=a.R(620,48,218,19,'#8ca6bb',10,'#627f9b')+a.R(622,49,214,16,'url(#gel)',8)
         body+='<defs><clipPath id="preview-aqua-track"><rect x="623" y="50" width="212" height="14" rx="7"/></clipPath></defs><g clip-path="url(#preview-aqua-track)"><g class="preview-aqua-stripes">'+a.R(598,49,264,17,'url(#candy)')+'</g></g>'

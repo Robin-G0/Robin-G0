@@ -83,7 +83,10 @@ def fish(a,name,x,y,w,h,route,klass,delay,duration,flip=False):
 
 
 def about(t,a):
-    h=360;b=background(a,'aero-aquarium-v3.jpg',h,'aero-aquarium')
+    h=360
+    b='<defs><clipPath id="aero-aquarium">'+a.R(0,0,900,h,'#fff',20)+'</clipPath></defs><g clip-path="url(#aero-aquarium)">'
+    b+='<g class="aquarium-still">'+a.bitmap('art/aero-aquarium-v3.jpg',-7,-4,914,h+8)+'</g>'
+    b+='<g class="aquarium-moving">'+a.bitmap('art/aero-aquarium-loop-v1.gif',-7,-4,914,h+8,data_aquarium_loop='true')+'</g>'
     b+=heading(a,t,40,56,'About me',35)
     b+=copy(a,42,100,'I’m a software engineer and',17)
     b+=copy(a,42,129,'full-stack developer,',17)
@@ -91,11 +94,16 @@ def about(t,a):
     b+=a.T(492,56,'Current interests',25,MUTED,font=EDITORIAL,font_style='italic')
     b+=copy(a,493,100,'Exploring computer vision and',16)
     b+=copy(a,493,129,'quantum computing at the moment.',16)
+    # Bubbles rise through the aquarium lane independently of the fish paths.
+    for i,(x,r,duration) in enumerate(((76,5,9),(376,3,12),(648,4,10),(832,6,14))):
+        b+=f'<g transform="translate({x} 335)"><g class="aquarium-bubble" style="animation-duration:{duration}s;animation-delay:-{i*2.6}s">'+a.C(0,0,r,'url(#bubble)','#e9ffff',stroke_opacity='.5')+'</g></g>'
     # The whole lower strip is an aquarium lane, away from all biography text.
     b+=fish(a,'aero-fish-orange-v3.png',-62,-39,124,78,'M -130 257 C 240 217 610 310 1040 249','fish-gold',9,31)
     b+=fish(a,'aero-fish-blue-v3.png',-42,-22,84,44,'M 1020 299 C 680 333 250 260 -110 308','fish-blue',5,25,True)
     b+=fish(a,'aero-fish-blue-v3.png',-26,-14,52,28,'M -90 222 C 350 196 550 240 980 210','fish-small',15,38)
     css='''.fish-track{offset-distance:45%;offset-rotate:0deg;animation:fish-swim 31s linear infinite}.fish-blue{offset-distance:37%;opacity:.9}.fish-small{offset-distance:67%;opacity:.65}.fish-body{transform-box:fill-box;transform-origin:center;animation:fish-fin 1.8s ease-in-out infinite alternate}.fish-blue .fish-body{animation-duration:1.2s}.fish-small .fish-body{animation-duration:1.5s}@keyframes fish-swim{from{offset-distance:0%}to{offset-distance:100%}}@keyframes fish-fin{from{transform:skewX(-2deg) scaleY(.97)}to{transform:skewX(2deg) scaleY(1.02)}}'''
+    css+='''.aquarium-still{display:none}.aquarium-moving{display:inline}.aquarium-bubble{animation:aquarium-bubble 10s ease-in infinite}@keyframes aquarium-bubble{0%{transform:translate(0,12px);opacity:0}18%,75%{opacity:.8}100%{transform:translate(14px,-135px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.aquarium-moving{display:none!important}.aquarium-still{display:inline!important}}'''
     return a.svg(t,h,'About me: software engineer and full-stack developer focused on research and development; exploring computer vision and quantum computing; swimming fish',b+'</g>',css)
 
 
