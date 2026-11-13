@@ -424,7 +424,11 @@ def scene_metro(t,kind):
         b+=H(t,34,91,'Robin-G0',68,ink)+T(38,127,'Software Engineer · Research & development',19,ink)
         b+=R(36,162,275,223,'#087aa5')+R(322,162,322,223,'#b33c7b')+R(655,162,208,106,'#dc6d23')+R(655,279,208,106,'#4b963d')
         b+=T(57,357,'Canada',26,'#fff')+T(621,357,'France',26,'#fff',text_anchor='end')
-        b+=globe(763,218,33,'none','#fff',True)+P('M725 337l25 -25 23 22 28 -35','#fff',3)
+        b+='<g class="metro-globe-live">'+globe(763,218,33,'none','#fff',True)+'</g>'
+        b+=P('M725 337l25 -25 23 22 28 -35','#fff',3,pathLength=1,stroke_dasharray=1,**{'class':'metro-trend-live'})
+        css+='''.metro-globe-live{transform-origin:763px 218px;animation:metro-globe-live 9s cubic-bezier(.1,.8,.2,1) infinite}.metro-trend-live{animation:metro-trend-live 7s cubic-bezier(.1,.8,.2,1) infinite}
+@keyframes metro-globe-live{0%,65%,100%{transform:scaleY(1)}72%{transform:scaleY(.02)}80%{transform:scaleY(1)}}
+@keyframes metro-trend-live{0%,10%{stroke-dashoffset:1}35%,90%{stroke-dashoffset:0}100%{stroke-dashoffset:1}}'''
         f,c=flight_path(t,'M 115 254 H 563','#fff','jet',16,True);b+=f;css+=c
     else:
         b+=T(37,44,'projects / motion input',15,ink)+H(t,32,129,'Motion',86,ink)+H(t,32,211,'Input Grid',86,ink)
@@ -445,6 +449,8 @@ def scene_material(t,kind):
         b+=R(600,109,270,279,t['bg'],8,filter='url(#shadow)')+T(624,143,'CANADA ↔ FRANCE',13,t['muted'])
         f,c=flight_path(t,'M 642 317 Q 666 177 830 213',t['accent'],'paper',19);b+=f;css+=c
         b+=C(641,318,4,t['accent'])+C(829,213,4,t['accent'])+T(625,360,'CA',14,t['accent'])+T(846,247,'FR',14,t['accent'],text_anchor='end')
+        b+='<g transform="translate(829 213)"><g class="material-arrival">'+C(0,0,8,'none',t['accent'],stroke_width='1.4')+'</g></g>'
+        css+='''.material-arrival{animation:material-arrival 19s ease-out infinite}@keyframes material-arrival{0%,42%{transform:scale(.4);opacity:0}44%{transform:scale(.5);opacity:1}56%,100%{transform:scale(3);opacity:0}}'''
     else:
         b+=R(30,25,840,374,t['bg'],8,filter='url(#shadow)')+R(30,25,840,66,t['accent'],8)+R(30,64,840,27,t['accent'])
         b+=T(57,67,'Motion Input Grid',25,t['bg'])+T(59,128,'Open-source motion input framework',16,t['ink'])
@@ -632,7 +638,8 @@ def activity(t,data):
             x=30+i*288;c=['#087aa5','#b33c7b','#4b963d'][i];b+=R(x,89,272,105,c)+T(x+16,138,v,36,'#fff',font='Segoe UI Light, sans-serif')+T(x+18,176,label,14,'#fff')
         for i,(name,pct,label) in enumerate(rows):
             x=30+(i%3)*288;y=218+(i//3)*105;c=['#145e93','#654698','#b3512b','#347c62'][i%4]
-            b+=R(x,y,272,93,c)+language_icon(name,x+218,y+17,34,metro=True)+T(x+16,y+30,name,15,'#fff')+T(x+16,y+70,label,29,'#fff',font='Segoe UI Light, sans-serif')+meter(t,x+16,y+80,240*pct,3,'#ffffffbb',i)
+            b+=R(x,y,272,93,c)+f'<g class="metro-app-icon" style="animation-delay:-{i*.61}s">'+language_icon(name,x+218,y+17,34,metro=True)+'</g>'+T(x+16,y+30,name,15,'#fff')+T(x+16,y+70,label,29,'#fff',font='Segoe UI Light, sans-serif')+R(x+16,y+80,240,3,'#ffffff30')+meter(t,x+16,y+80,240*pct,3,'#ffffffbb',i)
+        css+='''.metro-app-icon{transform-box:fill-box;transform-origin:center;animation:metro-app-tile 9s cubic-bezier(.1,.8,.2,1) infinite}@keyframes metro-app-tile{0%,72%,100%{transform:scaleY(1)}80%{transform:scaleY(.05)}88%{transform:scaleY(1)}}'''
         b+=T(30,h-15,'Owned public repositories',11,mut)
     elif k=='material':
         h=284+math.ceil(max(len(rows),1)/2)*47;b=R(0,0,900,h,t['soft'])+R(23,19,854,h-42,t['bg'],8,filter='url(#shadow)')

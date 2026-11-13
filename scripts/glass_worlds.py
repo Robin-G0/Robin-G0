@@ -2,13 +2,13 @@
 
 WORLDS={
     'flight':dict(name='space',background='glass-space-sky-v1.jpg',foreground='glass-space-earth-v1.png',
-                  background_seconds=3600,foreground_seconds=180,placement=(540,88,330,330),base='#050c21',motion='orbital'),
+                  background_seconds=600,foreground_seconds=180,placement=(540,88,330,330),base='#050c21',motion='orbital'),
     'about':dict(name='ocean',background='glass-ocean-water-v1.jpg',foreground='glass-ocean-caustics-v1.png',
                  background_seconds=2400,foreground_seconds=24,placement=(-40,185,980,255),base='#052539',motion='caustics'),
     'project':dict(name='abyss',background='glass-abyss-depths-v1.jpg',foreground='glass-abyss-jellyfish-v1.png',
-                   background_seconds=4200,foreground_seconds=110,placement=(84,130,230,290),base='#030d1d',motion='jellyfish'),
+                   background_seconds=780,foreground_seconds=110,placement=(84,130,230,290),base='#030d1d',motion='jellyfish'),
     'activity':dict(name='lunar',background='glass-lunar-horizon-v1.jpg',foreground='glass-lunar-ledge-v1.png',
-                    background_seconds=5200,foreground_seconds=240,placement=(490,340,440,110),base='#080e1c',motion='terrain'),
+                    background_seconds=960,foreground_seconds=240,placement=(490,340,440,110),base='#080e1c',motion='terrain'),
 }
 
 
@@ -38,12 +38,14 @@ def motion():
         selectors+=(f'.world-{section}-background{{animation:world-background {scene["background_seconds"]}s linear infinite;}}'
                     f'.world-{section}-foreground{{animation:world-{scene["motion"]} {scene["foreground_seconds"]}s linear -{scene["foreground_seconds"]*.23:g}s infinite;}}')
     return selectors+'''
+.world-project-foreground use{transform-box:fill-box;transform-origin:50% 25%;animation:world-jellyfish-pulse 7s ease-in-out infinite}
 .water-still{display:none}.water-moving{display:inline}
 @media(prefers-reduced-motion:reduce){.water-still{display:inline!important}.water-moving{display:none!important}}
 @keyframes world-background{from{transform:translateX(0)}to{transform:translateX(-1800px)}}
 @keyframes world-orbital{0%{transform:translate(50px,0);opacity:0}12%,88%{opacity:1}100%{transform:translate(-50px,0);opacity:0}}
 @keyframes world-caustics{0%{transform:translate(80px,9px);opacity:0}18%{opacity:.65}75%{opacity:.45}100%{transform:translate(-80px,-9px);opacity:0}}
 @keyframes world-jellyfish{0%{transform:translate(35px,30px);opacity:0}16%,82%{opacity:.85}100%{transform:translate(-35px,-30px);opacity:0}}
+@keyframes world-jellyfish-pulse{0%,100%{transform:scale(1)}40%{transform:scale(1.035,.975)}60%{transform:scale(.985,1.025)}}
 @keyframes world-terrain{0%{transform:translate(65px,0);opacity:0}12%,88%{opacity:.8}100%{transform:translate(-65px,0);opacity:0}}
 '''
 

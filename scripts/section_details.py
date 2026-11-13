@@ -61,4 +61,42 @@ def about(t,a):
         b+='<g class="bio-aqua-slider">'+a.C(523,209,9,'url(#gel)','#447daf')+a.C(520,206,3,'#fff',fill_opacity='.7')+'</g>'
         css='''.bio-aqua-candy{animation:bio-aqua-candy 1.5s linear infinite}.bio-aqua-slider{animation:bio-aqua-slider 12s ease-in-out infinite}
 @keyframes bio-aqua-candy{to{transform:translateX(24px)}}@keyframes bio-aqua-slider{0%,15%,100%{transform:translateX(0)}45%,65%{transform:translateX(272px)}}'''
+    elif k=='metro':
+        b+='<defs><clipPath id="bio-metro-code"><rect x="41" y="185" width="102" height="52"/></clipPath></defs><g clip-path="url(#bio-metro-code)"><g class="bio-metro-code">'
+        for y in (0,64):
+            b+=a.P(f'M63 {197+y}L50 {210+y} 63 {223+y}M100 {197+y}L113 {210+y} 100 {223+y}M90 {191+y}L76 {229+y}','#fff',3)
+        b+='</g></g>'
+        b+=a.P('M503 217L559 195 612 225 667 199 721 221 777 194 833 214','#c5b6e8',1.5)
+        for i,(x,y) in enumerate(((503,217),(559,195),(612,225),(667,199),(721,221),(777,194),(833,214))):
+            b+=a.C(x,y,4,'#fff',**{'class':'bio-metro-network','style':f'animation-delay:-{i*.6}s'})
+        css='''.bio-metro-code{animation:bio-metro-page 8s cubic-bezier(.1,.8,.2,1) infinite}.bio-metro-network{animation:bio-metro-signal 4.2s ease-in-out infinite}
+@keyframes bio-metro-page{0%,35%,100%{transform:translateY(0)}48%,85%{transform:translateY(-64px)}}
+@keyframes bio-metro-signal{0%,80%,100%{opacity:.35}20%,45%{opacity:1}}'''
+    elif k=='material':
+        b+=a.T(49,218,'RESEARCH',11,accent,font='Arial,sans-serif',letter_spacing=1)
+        b+=a.T(233,218,'DEVELOPMENT',11,accent,font='Arial,sans-serif',letter_spacing=1)
+        b+=a.P('M48 234H430',t['border'],1)
+        b+=a.R(48,232,137,3,accent,**{'class':'bio-material-tab'})
+        b+='<defs><clipPath id="bio-material-paper"><rect x="494" y="180" width="355" height="59"/></clipPath></defs><g clip-path="url(#bio-material-paper)">'
+        for i in range(3):
+            x=570+i*51
+            b+=f'<g transform="translate({x} 185)"><g class="bio-material-page" style="animation-delay:-{i*1.2}s">'+a.R(0,0,83,64,t['soft'],3)+a.R(0,0,83,5,accent,fill_opacity='.35')+a.P('M14 22H68M14 33H58',t['border'],2)+'</g></g>'
+        b+='</g>'
+        css='''.bio-material-tab{animation:bio-material-tab 8s cubic-bezier(.4,0,.2,1) infinite}.bio-material-page{animation:bio-material-page 7s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes bio-material-tab{0%,30%,100%{transform:translateX(0)}45%,80%{transform:translateX(184px)}}
+@keyframes bio-material-page{0%,100%{transform:translateY(12px)}50%{transform:translateY(-3px)}}'''
+    elif k=='field-notes':
+        b+=a.P('M37 211H428M39 205V228M427 205V228',t['muted'],.7)
+        for i in range(19):
+            x=51+i*20
+            b+=a.P(f'M{x} 211V{219 if i%5 else 225}',t['muted'],.7)
+        b+='<g transform="translate(69 211)"><g class="bio-notes-caliper">'+a.P('M0 -17V18H14M-2 -17H14V-8',ink,1.2)+a.P('M2 -8H12V10H2Z',ink,.6,t['goldbg'])+'</g></g>'
+        b+=a.P('M536 217H839M554 184V237',t['border'],.8)
+        b+=a.P('M569 220L605 208 646 216 689 190 733 205 780 185 824 194',accent,1.2,pathLength=1,stroke_dasharray=1,**{'class':'bio-notes-plot'})
+        for i,(x,y) in enumerate(((569,220),(605,208),(646,216),(689,190),(733,205),(780,185),(824,194))):
+            b+=a.C(x,y,2,t['bg'],accent,stroke_width='.8',**{'class':'bio-notes-point','style':f'animation-delay:{i*.55}s'})
+        css='''.bio-notes-caliper{animation:bio-notes-measure 16s ease-in-out infinite}.bio-notes-plot{animation:bio-notes-plot 14s linear infinite}.bio-notes-point{animation:bio-notes-mark 14s linear infinite}
+@keyframes bio-notes-measure{0%,12%,100%{transform:translateX(0)}45%,65%{transform:translateX(325px)}}
+@keyframes bio-notes-plot{0%,5%{stroke-dashoffset:1}40%,90%{stroke-dashoffset:0}100%{stroke-dashoffset:1}}
+@keyframes bio-notes-mark{0%,3%{opacity:0}8%,90%,100%{opacity:1}}'''
     return ('<g data-biography-detail="'+k+'" aria-hidden="true">'+b+'</g>' if b else ''),css
