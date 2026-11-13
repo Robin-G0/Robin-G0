@@ -7,13 +7,16 @@ embedded artwork, patterns and CSS animation. No remote runtime requests.
 import json
 import math
 import base64
+import sys
 from functools import lru_cache
 from pathlib import Path
 from xml.sax.saxutils import escape
 try:
     from . import era_materials as materials
+    from . import aero_compositions as aero
 except ImportError:
     import era_materials as materials
+    import aero_compositions as aero
 
 TYPE = json.loads(Path(__file__).with_name('typefaces.json').read_text(encoding='utf-8'))
 MONO = "'Lucida Console',Consolas,monospace"
@@ -68,7 +71,7 @@ def meter(t,x,y,w,h,color,index,rx=0,base=True):
     k=t['id'];w=max(w,.01)
     uid=f'meter-{index}'
     body=f'<defs><clipPath id="{uid}">{R(x,y,w,h,"#fff",rx)}</clipPath></defs><g clip-path="url(#{uid})" data-meter-style="{k}">'
-    surface='url(#aero-blue)' if k=='aero' else 'url(#gel)' if k=='aqua' else color
+    surface='url(#aero-meter-material)' if k=='aero' else 'url(#gel)' if k=='aqua' else color
     style=f'--travel:{w+50:.2f}px;--phase:-{index*.43:.2f}s'
     if base:body+=R(x,y,w,h,surface,rx,**{'class':'meter-ink' if k=='field-notes' else 'meter-base'})
     if k in ('desktop95','y2k','phosphor','matrix'):
@@ -125,9 +128,11 @@ def svg(t,h,title,body,css=''):
     motion=ERA_MOTION.get(t['id'],'')
     motion+=materials.motion(t['id'])
     body=materials.copy_motion(body,t['id'])
+    artwork=aero.definitions(sys.modules[__name__]) if t['id']=='aero' and 'url(#aero-meter-material)' in body else ''
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="900" height="{h}" viewBox="0 0 900 {h}" role="img" aria-labelledby="title">
 <title id="title">{escape(title)}</title>
 <defs>
+{artwork}
 {materials.definitions(t['id'])}
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
@@ -145,20 +150,20 @@ def svg(t,h,title,body,css=''):
 <pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="{t['border']}" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>text{{font-family:{t['font']};}}svg{{color:{t['ink']};}}.mono{{font-family:{MONO};}}
+<style>svg{{font-family:{t['font']};color:{t['ink']};}}.mono{{font-family:{MONO};}}
 {css} {motion}
 @media(prefers-reduced-motion:reduce){{*{{animation:none!important;}}.trail{{stroke-dashoffset:0!important;}}}}
 </style>{body}</svg>'''.replace('\u2014',' / ').replace('\u2013','-')
 
 
-def flight_path(t,d,ink=None,style='jet',duration=18,steps=False):
+def flight_path(t,d,ink=None,style='jet',duration=18,steps=False,plane_svg=None):
     ink=ink or t['accent']
     shapes={
         'jet':'M21 0Q21 -3 13 -3L3 -3 -8 -17 -13 -17 -7 -3 -16 -3 -21 -8 -24 -8 -21 0 -24 8 -21 8 -16 3 -7 3 -13 17 -8 17 3 3 13 3Q21 3 21 0Z',
         'pixel':'M18 -2H6V-6H2V-10H-2V-14H-6V-2H-14V-6H-18V6H-14V2H-6V14H-2V10H2V6H6V2H18Z',
         'paper':'M22 -11L-19 -4 -4 2 3 15Z M-4 2L22 -11',
     }
-    plane=P(shapes.get(style,shapes['jet']),ink,1.2,ink,stroke_linejoin='round')
+    plane=plane_svg if plane_svg is not None else P(shapes.get(style,shapes['jet']),ink,1.2,ink,stroke_linejoin='round')
     body=P(d,ink,1.4,stroke_dasharray='3 7',opacity='.5',data_flight_route='true')
     body+=f'<g class="aircraft" data-travel="round-trip">{plane}</g>'
     css=f'''.aircraft{{offset-path:path('{d}');offset-distance:50%;offset-rotate:auto;animation:roundtrip {duration}s {'steps(32)' if steps else 'linear'} infinite;}}
@@ -223,7 +228,7 @@ def button(t,x,y,label,kind=None,w=180):
     if k=='aqua':
         return R(x,y,w,32,'url(#gel)',16,'#2463a0')+R(x+8,y+3,w-16,9,'#ffffff77',7,**{'class':'gel-breathe'})+T(x+w/2,y+22,label,13,'#fff',text_anchor='middle',font_weight='bold')
     if k=='aero':
-        return R(x,y,w,36,'url(#aero-blue)',7,'#b4edff')+R(x+3,y+2,w-6,14,'#fff',5,opacity='.32',**{'class':'gel-breathe'})+P(f'M{x+9} {y+33}H{x+w-9}','#75dfff',1,opacity='.7')+T(x+w/2,y+24,label,14,'#fff',text_anchor='middle')
+        return aero.button(t,x,y,label,sys.modules[__name__],w=w)
     if k=='y2k':
         d=f'M{x+10} {y}H{x+w}L{x+w-10} {y+34}H{x}Z'
         return P(d,'#7d8cac',1,'url(#chrome)')+T(x+w/2,y+23,label.upper(),12,'#182b5b',font='Arial, sans-serif',text_anchor='middle',font_weight='bold',letter_spacing=2)
@@ -393,34 +398,7 @@ def scene_aqua(t,kind):
 
 
 def scene_aero(t,kind):
-    b='<defs><clipPath id="aero-frame">'+R(0,0,900,440,'#fff',16)+'</clipPath></defs><g clip-path="url(#aero-frame)">'
-    css=GRID_CSS+'''.aero-background{animation:aero-depth 23s ease-in-out infinite alternate;}.aero-orb{animation:aero-orbit 11s ease-in-out -3s infinite;}@keyframes aero-depth{to{transform:translate(-12px,5px)}}@keyframes aero-orbit{50%{transform:translate(5px,-9px)}}'''
-    if kind=='flight':
-        b+='<g class="aero-background">'+bitmap('art/aero-landscape.jpg',-15,-10,940,470)+'</g>'
-        b+=R(0,0,900,440,'url(#aero-shade)')
-        b+=materials.bubbles()
-        b+=R(31,32,495,158,'#f3fbff',17,'#ffffffcc',fill_opacity='.82',filter='url(#shadow)')
-        b+=P('M48 34H509','#fff',2,opacity='.8')+H(t,55,111,'Robin-G0',65,'#153d5c')
-        b+=T(60,154,'CANADA / FRANCE',13,'#39718e',letter_spacing=3)
-        b+='<g class="aero-orb">'+bitmap('art/aero-globe.png',600,70,267,267,filter='url(#shadow)')+'</g>'
-        b+=R(31,246,527,151,'#f1fbff',18,'#ffffffcc',fill_opacity='.8',filter='url(#shadow)')
-        f,c=flight_path(t,'M 101 323 Q 294 254 488 323','#216a98','jet',23);b+=f;css+=c
-        b+=T(57,371,'CANADA',13,'#245b79',letter_spacing=2)+T(530,371,'FRANCE',13,'#245b79',text_anchor='end',letter_spacing=2)
-    else:
-        b+=R(0,0,900,440,'#b5d9eb')+bitmap('art/aero-landscape.jpg',0,-70,900,450,opacity='.2')
-        b+=R(25,24,850,392,'#f3faff',15,'#fff',fill_opacity='.91',filter='url(#shadow)')
-        b+=R(28,27,844,36,'url(#aero-blue)',12)+R(28,48,844,15,'#087cc5')+T(49,51,'Motion Input Grid',13,'#fff')
-        b+=P('M42 29H802','#e5faff',1,opacity='.8',**{'class':'gel-breathe'})
-        b+=R(811,28,47,23,'#c96c61',3)+T(834,45,'×',18,'#fff',text_anchor='middle')
-        b+=H(t,55,132,'Motion Input Grid',43,'#194c69')+T(58,172,'Open-source motion input framework.',16,'#426e83')
-        b+=T(58,204,'Websites, desktop apps and games.',15,'#426e83')+button(t,58,249,'Explore project',w=213)
-        b+=T(59,329,'Looking for testers',14,'#306c80')
-        b+=R(536,92,285,259,'#0f3d5b',10,'#80b7cf')+R(546,102,265,239,'url(#graph)',7)
-        b+=skeleton(665,120,1.35,'#c2f2ff',True)+C(741,145,26,'#bcda87',stroke='#f4ffe3',fill_opacity='.18',**{'class':'confirm'})
-        b+=C(741,145,20,'none','#d8fbff',stroke_width=2,**{'class':'aero-lock'})
-        css+='.aero-lock{transform-box:fill-box;transform-origin:center;animation:aero-lock 5s ease-out infinite}@keyframes aero-lock{0%{transform:scale(.4);opacity:0}25%{opacity:.8}80%,100%{transform:scale(1.7);opacity:0}}'
-        b+=T(679,379,'LANDMARK PREVIEW',11,'#3b697f',text_anchor='middle',letter_spacing=2)
-    return svg(t,440,'Robin-G0, Canada to France' if kind=='flight' else 'Motion Input Grid, Aero landmark preview',b+'</g>',css)
+    return aero.scene(t,kind,sys.modules[__name__])
 
 
 def scene_metro(t,kind):
@@ -530,6 +508,8 @@ def action_button(t,label):
 def about(t):
     """The requested biography belongs to the theme, not a Markdown paragraph."""
     k=t['id'];ink=t['ink'];mut=t['muted'];a=t['accent'];h=272
+    if k=='aero':
+        return aero.about(t,sys.modules[__name__])
     if k=='phosphor':
         b=R(0,0,900,h,'#080f09',14)+R(0,0,900,h,'url(#scan)',14);ink=mut=a
         b+=T(30,35,'$ cat about.txt',12,a,font=MONO)
@@ -543,8 +523,6 @@ def about(t):
         b=R(0,0,900,h,t['bg'])+R(0,0,900,11,'url(#chrome)')+P('M24 253H876',a,2)
     elif k=='aqua':
         b=R(0,0,900,h,'#316fae')+aqua_window(17,13,866,245,'About')+R(30,51,839,192,'url(#pinstripe)');ink='#25455f';mut='#4c6d85';a='#276ea8'
-    elif k=='aero':
-        b=R(0,0,900,h,'#cde8f3',14)+R(16,14,868,244,'#f8fdff',13,'#fff',fill_opacity='.9',filter='url(#shadow)');ink='#204c68';mut='#456d83';a='#2378a5'
     elif k=='metro':
         b=R(0,0,900,h,t['bg'])+R(20,20,425,232,'#087aa5')+R(455,20,425,232,'#694597');ink=mut=a='#fff'
     elif k=='material':
@@ -577,7 +555,10 @@ def language_rows(data):
 
 def activity(t,data):
     """Distinct information layouts, while keeping every number and language."""
-    k=t['id'];rows=language_rows(data);values=metrics(data);a=t['accent'];ink=t['ink'];mut=t['muted'];css=''
+    k=t['id']
+    if k=='aero':
+        return aero.activity(t,data,sys.modules[__name__])
+    rows=language_rows(data);values=metrics(data);a=t['accent'];ink=t['ink'];mut=t['muted'];css=''
     updated=data['updated'] if data.get('updated') else 'pending'
     foot='Public repositories · Language share by bytes · Filtered additions + deletions'
     if k=='phosphor':
@@ -628,14 +609,6 @@ def activity(t,data):
         for i,(name,pct,label) in enumerate(rows):
             y=121+i*28;b+=R(226,y-19,643,28,'#e7eff7' if i%2==0 else '#fff')+C(243,y-5,5,COLORS[i%6])+T(259,y,name,12,'#294b69')+meter(t,433,y-11,337*pct,12,'url(#gel)',i,6)+T(852,y,label,12,'#294b69',text_anchor='end')
         b+=T(235,h-32,'Updated '+updated+' UTC · Public repositories only',10,'#49637a')
-    elif k=='aero':
-        h=290+max(len(rows),1)*27;b=R(0,0,900,h,'#d9f0f5')+P(f'M0 {h}Q450 {h-145} 900 {h-30}V{h}Z','none',fill='#c0dfa4')
-        b+=R(20,19,860,h-40,'#ffffffaa',16,'#fff')+T(43,54,'GitHub activity',23,'#1c6082')
-        for i,(v,label) in enumerate(values):
-            x=42+i*285;b+=R(x,78,251,91,'#d2edf8',10,'#a4cedd')+T(x+17,119,v,32,'#1c668a')+T(x+18,148,label,12,'#47758b')
-        for i,(name,pct,label) in enumerate(rows):
-            y=210+i*27;b+=T(44,y,name,12,'#275b72')+R(213,y-10,544,11,'#c5e3ec',6)+meter(t,213,y-10,544*pct,11,'#428eb8',i,6)+T(850,y,label,12,'#275b72',text_anchor='end')
-        b+=T(44,h-33,'Public repositories · Updated '+updated+' UTC',11,'#47758b')
     elif k=='metro':
         h=267+math.ceil(max(len(rows),1)/3)*105;b=R(0,0,900,h,t['bg'])+H(t,30,65,'Public activity',45,ink)
         for i,(v,label) in enumerate(values):
@@ -679,7 +652,10 @@ def activity(t,data):
 
 def label_card(t,selected=None,preview=False,number=None):
     """Era-specific navigation strips; these do not repeat section decorations."""
-    k=t['id'];name=t['name'];era=t['era'];row=number is not None
+    k=t['id']
+    if k=='aero':
+        return aero.label_card(t,selected,preview,number,sys.modules[__name__])
+    name=t['name'];era=t['era'];row=number is not None
     head=f'{number:02} / THEME COLLECTION' if row else ('THEME PREVIEW' if preview else 'CURRENT THEME')
     detail='Open theme →' if row else f"{'Preview updated' if preview else 'Selected'} {selected.isoformat()} UTC · {'fixed identity' if preview else 'daily rotation'}"
     h=130;a=t['accent'];ink=t['ink'];font=t['font'];css=''
@@ -696,8 +672,6 @@ def label_card(t,selected=None,preview=False,number=None):
         b=R(0,0,900,h,'url(#chrome)',28)+P('M594 0H900L853 130H544Z','none',fill='#1e3476')+T(30,30,head,10,'#304567',letter_spacing=2)+H(t,27,82,name,41,'#182b57')+T(30,111,detail,10,'#304567')+T(857,103,era,11,'#dce6ff',text_anchor='end')
     elif k=='aqua':
         b=aqua_window(2,2,896,125,'Appearance')+H(t,24,87,name,40,'#274b6c')+T(25,112,detail,10,'#4e6982')+T(874,87,era,12,'#4e6982',text_anchor='end')
-    elif k=='aero':
-        b=R(0,0,900,h,'url(#sky)',13)+C(801,36,38,'#ffffff55')+R(13,13,874,104,'#ffffffaa',9,'#fff')+T(29,37,head,10,'#3a7692')+H(t,27,82,name,40,'#1a5c7d')+T(29,108,detail,10,'#3a7692')+T(868,103,era,12,'#3a7692',text_anchor='end')
     elif k=='metro':
         b=R(0,0,900,h,t['bg'])+R(0,0,14,h,a)+T(34,28,head,11,t['muted'])+H(t,31,82,name,45,ink)+T(35,113,detail,11,t['muted'])+T(870,104,era,12,t['muted'],text_anchor='end')
     elif k=='material':

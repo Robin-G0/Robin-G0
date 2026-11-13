@@ -31,7 +31,7 @@ MOTION = {
     'matrix': '.era-copy{animation:decode-write 19s steps(32,end) infinite}.meter-head{animation:meter-step 8s steps(24,end) infinite}',
     'y2k': '.era-copy{animation:chrome-copy 13s ease-in-out infinite}.meter-head{animation:chrome-sweep 5s cubic-bezier(.7,0,.2,1) infinite}',
     'aqua': '.era-copy{animation:aqua-copy 15s ease-in-out infinite}.meter-texture{animation:stripe-scroll 1.7s linear infinite}.gel-breathe{animation:gel-breathe 4s ease-in-out infinite}',
-    'aero': '.era-copy{animation:aero-copy 16s ease-in-out infinite}.meter-head{animation:aero-sweep 6s ease-in-out infinite}.bubble-rise{animation:bubble-rise 13s ease-in-out infinite alternate}.gel-breathe{animation:gel-breathe 6s ease-in-out infinite}',
+    'aero': '.era-copy{animation:aero-copy 16s ease-in-out infinite}.meter-head{animation:aero-sweep 6s ease-in-out infinite}.aero-wallpaper{animation:aero-current 21s ease-in-out infinite alternate}.bubble-rise{animation:bubble-rise 13s ease-in-out infinite alternate}.gel-breathe{animation:gel-breathe 6s ease-in-out infinite}',
     'metro': '.era-copy{animation:metro-copy 15s cubic-bezier(.1,.8,.2,1) infinite}.meter-dot{animation:metro-dot 4s cubic-bezier(.1,.8,.8,.1) infinite}',
     'material': '.era-copy{animation:paper-copy 16s cubic-bezier(.4,0,.2,1) infinite}.meter-head{animation:material-sweep 6s cubic-bezier(.4,0,.2,1) infinite}',
     'glass': '.era-copy{animation:glass-copy 18s ease-in-out infinite}.meter-head{animation:glass-sweep 8s ease-in-out infinite}',
@@ -59,6 +59,7 @@ def motion(theme):
 @keyframes chrome-copy{0%,100%{letter-spacing:1px}50%{letter-spacing:1.6px}}
 @keyframes aqua-copy{0%,85%,100%{opacity:1}92%{opacity:.72}}
 @keyframes aero-copy{0%,100%{opacity:1}50%{opacity:.8}}
+@keyframes aero-current{to{transform:translate(5px,2px)}}
 @keyframes metro-copy{0%,2%{transform:translateY(6px);opacity:0}9%,94%{transform:translateY(0);opacity:1}100%{opacity:0}}
 @keyframes paper-copy{0%,2%{transform:translateY(5px);opacity:0}10%,100%{transform:translateY(0);opacity:1}}
 @keyframes glass-copy{0%,100%{opacity:.8}45%,75%{opacity:1}}

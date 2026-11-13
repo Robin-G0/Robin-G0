@@ -2,6 +2,7 @@
 <title id="title">Robin-G0  /  Y2K chrome and orbital sculpture</title>
 <defs>
 
+
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
 <linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -18,7 +19,7 @@
 <pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#5d688d" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>text{font-family:Arial, sans-serif;}svg{color:#eef2ff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
+<style>svg{font-family:Arial, sans-serif;color:#eef2ff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
 .orbit{transform-origin:700px 205px;animation:orbit 9s ease-in-out infinite;}@keyframes orbit{50%{transform:rotate(-8deg);}}.trail{animation:recognize 7s ease-in-out infinite;}@keyframes recognize{0%,8%{stroke-dashoffset:1;}65%,90%{stroke-dashoffset:0;}100%{stroke-dashoffset:1;}}.confirm{animation:confirm 7s infinite;}@keyframes confirm{0%,60%,100%{opacity:.25;}70%,90%{opacity:1;}}.aircraft{offset-path:path('M 120 346 C 270 308 451 308 548 346');offset-distance:50%;offset-rotate:auto;animation:roundtrip 15s linear infinite;}
 @keyframes roundtrip{0%,5%{offset-distance:0%;offset-rotate:auto;}44%,49%{offset-distance:100%;offset-rotate:auto;}50%,55%{offset-distance:100%;offset-rotate:reverse;}94%,99%{offset-distance:0%;offset-rotate:reverse;}100%{offset-distance:0%;offset-rotate:auto;}} .device-float{animation:levitate 6s ease-in-out infinite;}@keyframes levitate{50%{transform:translateY(-7px)}}.era-copy{animation:chrome-copy 13s ease-in-out infinite}.meter-head{animation:chrome-sweep 5s cubic-bezier(.7,0,.2,1) infinite}@keyframes chrome-sweep{0%,15%{transform:translateX(-40px)}70%,100%{transform:translateX(var(--travel))}}@keyframes chrome-copy{0%,100%{letter-spacing:1px}50%{letter-spacing:1.6px}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}

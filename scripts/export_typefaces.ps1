@@ -1,4 +1,5 @@
 # Authoring utility, Windows only. CI renders the saved outlines without fonts.
+param([string]$OnlyTheme)
 Add-Type -AssemblyName System.Drawing
 $styles = @{
     'phosphor' = @('Lucida Console', 'Regular')
@@ -7,7 +8,7 @@ $styles = @{
     'matrix' = @('Courier New', 'Bold')
     'y2k' = @('Arial', 'Bold, Italic')
     'aqua' = @('Georgia', 'Regular')
-    'aero' = @('Trebuchet MS', 'Regular')
+    'aero' = @('Segoe UI Light', 'Regular')
     'metro' = @('Segoe UI Light', 'Regular')
     'material' = @('Bahnschrift', 'Regular')
     'glass' = @('Segoe UI', 'Bold')
@@ -18,10 +19,12 @@ $labels = @('Robin-G0','ROBIN-G0','Motion Input Grid','Motion','Input Grid','Pub
     'Frutiger Aero','Metro','Material','Glass / Fluent','Field Notes')
 $result = @{}
 foreach ($key in $styles.Keys) {
+    if ($OnlyTheme -and $key -ne $OnlyTheme) { continue }
     $family = [System.Drawing.FontFamily]::new($styles[$key][0])
     $fontStyle = [System.Enum]::Parse([System.Drawing.FontStyle], $styles[$key][1])
     $entries = [System.Collections.Generic.Dictionary[string,object]]::new([System.StringComparer]::Ordinal)
-    foreach ($label in $labels) {
+    $themeLabels = if ($key -eq 'aero') { $labels + @('About me','GitHub activity') } else { $labels }
+    foreach ($label in $themeLabels) {
         $path = [System.Drawing.Drawing2D.GraphicsPath]::new()
         $path.AddString($label, $family, [int]$fontStyle, 100,
             [System.Drawing.PointF]::new(0,0), [System.Drawing.StringFormat]::GenericTypographic)
@@ -53,4 +56,5 @@ foreach ($key in $styles.Keys) {
     $family.Dispose()
 }
 $target = Join-Path $PSScriptRoot 'typefaces.json'
+if ($OnlyTheme) { $target = Join-Path $PSScriptRoot "../.design-work/typefaces-$OnlyTheme.json" }
 [System.IO.File]::WriteAllText($target, ($result | ConvertTo-Json -Depth 6 -Compress), [System.Text.UTF8Encoding]::new($false))

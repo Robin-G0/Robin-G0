@@ -2,6 +2,7 @@
 <title id="title">Robin-G0  /  Metro start screen</title>
 <defs>
 
+
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
 <linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -18,7 +19,7 @@
 <pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#3a5474" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>text{font-family:Segoe UI, Arial, sans-serif;}svg{color:#ffffff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
+<style>svg{font-family:Segoe UI, Arial, sans-serif;color:#ffffff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
 .trail{animation:recognize 7s ease-in-out infinite;}@keyframes recognize{0%,8%{stroke-dashoffset:1;}65%,90%{stroke-dashoffset:0;}100%{stroke-dashoffset:1;}}.confirm{animation:confirm 7s infinite;}@keyframes confirm{0%,60%,100%{opacity:.25;}70%,90%{opacity:1;}}.aircraft{offset-path:path('M 115 254 H 563');offset-distance:50%;offset-rotate:auto;animation:roundtrip 16s steps(32) infinite;}
 @keyframes roundtrip{0%,5%{offset-distance:0%;offset-rotate:auto;}44%,49%{offset-distance:100%;offset-rotate:auto;}50%,55%{offset-distance:100%;offset-rotate:reverse;}94%,99%{offset-distance:0%;offset-rotate:reverse;}100%{offset-distance:0%;offset-rotate:auto;}} .cell-5{transform-box:fill-box;transform-origin:center;animation:tileflip 8s ease-in-out infinite;}@keyframes tileflip{0%,65%,100%{transform:scaleY(1)}80%{transform:scaleY(.06)}}.era-copy{animation:metro-copy 15s cubic-bezier(.1,.8,.2,1) infinite}.meter-dot{animation:metro-dot 4s cubic-bezier(.1,.8,.8,.1) infinite}@keyframes metro-dot{0%,8%{transform:translateX(-30px);opacity:0}20%,75%{opacity:1}95%,100%{transform:translateX(var(--travel));opacity:0}}@keyframes metro-copy{0%,2%{transform:translateY(6px);opacity:0}9%,94%{transform:translateY(0);opacity:1}100%{opacity:0}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}

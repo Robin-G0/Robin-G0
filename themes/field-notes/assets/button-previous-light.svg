@@ -2,6 +2,7 @@
 <title id="title">Previous theme</title>
 <defs>
 
+
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
 <linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -18,7 +19,7 @@
 <pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#cdcfc5" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>text{font-family:Georgia, serif;}svg{color:#202923;}.mono{font-family:'Lucida Console',Consolas,monospace;}
+<style>svg{font-family:Georgia, serif;color:#202923;}.mono{font-family:'Lucida Console',Consolas,monospace;}
  .trail{animation:pen 10s ease-in-out infinite;}@keyframes pen{0%,8%{stroke-dashoffset:1}30%,36%{stroke-dashoffset:.65}65%,91%{stroke-dashoffset:0}100%{stroke-dashoffset:1}}.era-copy{animation:pen-copy 21s linear infinite}.meter-ink{animation:ink-dry 9s ease-out infinite}@keyframes ink-dry{0%,100%{opacity:.65}25%,80%{opacity:1}}@keyframes pen-copy{0%,2%{clip-path:inset(0 100% 0 0)}8%{clip-path:inset(0 65% 0 0)}12%{clip-path:inset(0 65% 0 0)}24%,100%{clip-path:inset(0)}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
 </style><path d="M12 43H268" fill="none" stroke="#245e51" stroke-width="1" /><text x="12" y="34" font-size="15" fill="#245e51" font-family="Georgia,'Times New Roman',serif" font-style="italic">Previous theme ↗</text></svg>

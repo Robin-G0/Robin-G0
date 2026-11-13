@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="430" viewBox="0 0 900 430" role="img" aria-labelledby="title">
 <title id="title">Robin-G0  /  Aqua Address Book</title>
 <defs>
+
 <linearGradient id="aqua-title" x2="0" y2="1"><stop stop-color="#fcfdff"/><stop offset=".45" stop-color="#edf0f3"/><stop offset="1" stop-color="#c5cbd2"/></linearGradient><linearGradient id="aqua-toolbar" x2="0" y2="1"><stop stop-color="#edf1f5"/><stop offset="1" stop-color="#cbd4dd"/></linearGradient><pattern id="candy" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-6 24L18 0M6 24L30 0" stroke="#b9edff" stroke-width="5" opacity=".45"/></pattern>
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
@@ -18,7 +19,7 @@
 <pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#9db7d0" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>text{font-family:Lucida Grande, Verdana, sans-serif;}svg{color:#172e4c;}.mono{font-family:'Lucida Console',Consolas,monospace;}
+<style>svg{font-family:Lucida Grande, Verdana, sans-serif;color:#172e4c;}.mono{font-family:'Lucida Console',Consolas,monospace;}
 .trail{animation:recognize 7s ease-in-out infinite;}@keyframes recognize{0%,8%{stroke-dashoffset:1;}65%,90%{stroke-dashoffset:0;}100%{stroke-dashoffset:1;}}.confirm{animation:confirm 7s infinite;}@keyframes confirm{0%,60%,100%{opacity:.25;}70%,90%{opacity:1;}}.aircraft{offset-path:path('M 368 327 Q 571 260 775 327');offset-distance:50%;offset-rotate:auto;animation:roundtrip 19s linear infinite;}
 @keyframes roundtrip{0%,5%{offset-distance:0%;offset-rotate:auto;}44%,49%{offset-distance:100%;offset-rotate:auto;}50%,55%{offset-distance:100%;offset-rotate:reverse;}94%,99%{offset-distance:0%;offset-rotate:reverse;}100%{offset-distance:0%;offset-rotate:auto;}} .confirm{stroke-width:4;animation:aqua-focus 5s ease-in-out infinite;}@keyframes aqua-focus{50%{stroke-width:1;opacity:.3}}.era-copy{animation:aqua-copy 15s ease-in-out infinite}.meter-texture{animation:stripe-scroll 1.7s linear infinite}.gel-breathe{animation:gel-breathe 4s ease-in-out infinite}@keyframes stripe-scroll{to{transform:translateX(24px)}}@keyframes aqua-copy{0%,85%,100%{opacity:1}92%{opacity:.72}}@keyframes gel-breathe{50%{opacity:.45}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
