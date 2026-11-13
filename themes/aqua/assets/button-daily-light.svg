@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="280" height="64" viewBox="0 0 280 64" role="img" aria-labelledby="title">
-<title id="title">Daily profile</title>
+<title id="title">Profile</title>
 <defs>
 
 <linearGradient id="aqua-title" x2="0" y2="1"><stop stop-color="#fcfdff"/><stop offset=".45" stop-color="#edf0f3"/><stop offset="1" stop-color="#c5cbd2"/></linearGradient><linearGradient id="aqua-toolbar" x2="0" y2="1"><stop stop-color="#edf1f5"/><stop offset="1" stop-color="#cbd4dd"/></linearGradient><pattern id="candy" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-6 24L18 0M6 24L30 0" stroke="#b9edff" stroke-width="5" opacity=".45"/></pattern>
@@ -22,4 +22,4 @@
 <style>svg{font-family:Lucida Grande, Verdana, sans-serif;color:#172e4c;}.mono{font-family:'Lucida Console',Consolas,monospace;}
  .confirm{stroke-width:4;animation:aqua-focus 5s ease-in-out infinite;}@keyframes aqua-focus{50%{stroke-width:1;opacity:.3}}.era-copy{animation:aqua-copy 15s ease-in-out infinite}.meter-texture{animation:stripe-scroll 1.7s linear infinite}.gel-breathe{animation:gel-breathe 4s ease-in-out infinite}@keyframes stripe-scroll{to{transform:translateX(24px)}}@keyframes aqua-copy{0%,85%,100%{opacity:1}92%{opacity:.72}}@keyframes gel-breathe{50%{opacity:.45}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
-</style><rect x="12" y="12" width="256" height="32" rx="16" fill="url(#gel)" stroke="#2463a0" /><rect x="20" y="15" width="240" height="9" rx="7" fill="#ffffff77" stroke="none" class="gel-breathe"/><text x="140.0" y="34" font-size="13" fill="#fff"  text-anchor="middle" font-weight="bold">Daily profile</text></svg>
+</style><rect x="12" y="12" width="256" height="32" rx="16" fill="url(#gel)" stroke="#2463a0" /><rect x="20" y="15" width="240" height="9" rx="7" fill="#ffffff77" stroke="none" class="gel-breathe"/><text x="140.0" y="34" font-size="13" fill="#fff"  text-anchor="middle" font-weight="bold">Profile</text></svg>

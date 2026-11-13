@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="280" height="64" viewBox="0 0 280 64" role="img" aria-labelledby="title">
-<title id="title">Daily profile</title>
+<title id="title">Profile</title>
 <defs>
 
 <pattern id="hatch" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-12 24L12 0M0 24L24 0M12 24L36 0" stroke="#100b3b" stroke-width="5" opacity=".48"/></pattern>
@@ -22,4 +22,4 @@
 <style>svg{font-family:'Times New Roman', Times, serif;color:#ffffff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
  .trail{animation-duration:5s;animation-timing-function:steps(4);}.era-copy{animation:web-link 9s steps(1) infinite}.meter-texture{animation:stripe-scroll 1s linear infinite}@keyframes stripe-scroll{to{transform:translateX(24px)}}@keyframes web-link{0%,84%,100%{text-decoration:underline}85%,94%{text-decoration:none}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
-</style><rect x="12" y="12" width="256" height="34" rx="0" fill="#ffef00" stroke="#fff" stroke-width="2"/><text x="140.0" y="35" font-size="17" fill="#000080" font-family="Georgia,'Times New Roman',serif" text-anchor="middle" font-weight="bold">Daily profile</text></svg>
+</style><rect x="12" y="12" width="256" height="34" rx="0" fill="#ffef00" stroke="#fff" stroke-width="2"/><text x="140.0" y="35" font-size="17" fill="#000080" font-family="Georgia,'Times New Roman',serif" text-anchor="middle" font-weight="bold">Profile</text></svg>

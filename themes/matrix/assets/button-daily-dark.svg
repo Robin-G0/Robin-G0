@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="280" height="64" viewBox="0 0 280 64" role="img" aria-labelledby="title">
-<title id="title">Daily profile</title>
+<title id="title">Profile</title>
 <defs>
 
 
@@ -22,4 +22,4 @@
 <style>svg{font-family:Consolas, monospace;color:#b1ffc5;}.mono{font-family:'Lucida Console',Consolas,monospace;}
  .tracking-scan{animation:tracking 6s linear infinite;}@keyframes tracking{0%{opacity:0;transform:translateY(0)}10%,85%{opacity:.6}100%{opacity:0;transform:translateY(240px)}}.era-copy{animation:decode-write 19s steps(32,end) infinite}.meter-head{animation:meter-step 8s steps(24,end) infinite}@keyframes meter-step{0%,12%{transform:translateX(-40px)}75%,100%{transform:translateX(var(--travel))}}@keyframes decode-write{0%,3%{clip-path:inset(0 100% 0 0);opacity:.4}20%,100%{clip-path:inset(0);opacity:1}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
-</style><rect x="6" y="6" width="268" height="50" rx="4" fill="#080f09" stroke="none" /><rect x="12" y="12" width="256" height="32" rx="0" fill="none" stroke="#36ef77" /><text x="26" y="33" font-size="12" fill="#36ef77" font-family="'Lucida Console',Consolas,monospace" >&gt; Daily profile</text></svg>
+</style><rect x="6" y="6" width="268" height="50" rx="4" fill="#080f09" stroke="none" /><rect x="12" y="12" width="256" height="32" rx="0" fill="none" stroke="#36ef77" /><text x="26" y="33" font-size="12" fill="#36ef77" font-family="'Lucida Console',Consolas,monospace" >&gt; Profile</text></svg>

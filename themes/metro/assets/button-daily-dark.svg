@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="280" height="64" viewBox="0 0 280 64" role="img" aria-labelledby="title">
-<title id="title">Daily profile</title>
+<title id="title">Profile</title>
 <defs>
 
 
@@ -22,4 +22,4 @@
 <style>svg{font-family:Segoe UI, Arial, sans-serif;color:#ffffff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
  .cell-5{transform-box:fill-box;transform-origin:center;animation:tileflip 8s ease-in-out infinite;}@keyframes tileflip{0%,65%,100%{transform:scaleY(1)}80%{transform:scaleY(.06)}}.era-copy{animation:metro-copy 15s cubic-bezier(.1,.8,.2,1) infinite}.meter-dot{animation:metro-dot 4s cubic-bezier(.1,.8,.8,.1) infinite}@keyframes metro-dot{0%,8%{transform:translateX(-30px);opacity:0}20%,75%{opacity:1}95%,100%{transform:translateX(var(--travel));opacity:0}}@keyframes metro-copy{0%,2%{transform:translateY(6px);opacity:0}9%,94%{transform:translateY(0);opacity:1}100%{opacity:0}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
-</style><rect x="12" y="12" width="256" height="38" rx="0" fill="#5fc5ff" stroke="none" /><text x="27" y="38" font-size="16" fill="#101c2d"  >Daily profile</text></svg>
+</style><rect x="12" y="12" width="256" height="38" rx="0" fill="#5fc5ff" stroke="none" /><text x="27" y="38" font-size="16" fill="#101c2d"  >Profile</text></svg>

@@ -36,7 +36,7 @@ class GalleryTests(unittest.TestCase):
         for theme in THEMES:
             key = theme['id']
             readme = outputs[f'themes/{key}/README.md']
-            self.assertIn(f'Preview theme: {theme["name"]}', readme)
+            self.assertIn(f'Visual identity: {theme["name"]}', readme)
             self.assertNotIn('Current theme:', readme)
             self.assertIn(f'?v=2026-11-12-{key}', readme)
             self.assertIn('href="../README.md"', readme)
@@ -48,9 +48,9 @@ class GalleryTests(unittest.TestCase):
                     svg = outputs[f'themes/{key}/assets/{kind}-{mode}.svg']
                     ET.fromstring(svg)
                 banner = outputs[f'themes/{key}/assets/theme-{mode}.svg']
-                self.assertIn('fixed identity', banner)
+                self.assertNotIn('fixed identity', banner)
                 self.assertNotIn('daily rotation', banner)
-                self.assertIn('2026-11-11', outputs[f'themes/{key}/assets/stats-{mode}.svg'])
+                self.assertNotIn('2026-11-11', outputs[f'themes/{key}/assets/stats-{mode}.svg'])
             rows.add(outputs[f'themes/{key}/assets/row-light.svg'])
         self.assertEqual(len(rows), len(THEMES))
 
@@ -68,6 +68,17 @@ class GalleryTests(unittest.TestCase):
                 resolved = posixpath.normpath(posixpath.join(posixpath.dirname(path), urlsplit(target).path))
                 with self.subTest(page=path, link=target):
                     self.assertIn(resolved, known)
+
+    def test_public_theme_artwork_has_no_preview_or_update_labels(self):
+        outputs=gallery_outputs(TEMPLATE,self.data,self.day)
+        for path,document in outputs.items():
+            if path.endswith('.svg'):
+                root=ET.fromstring(document)
+                labels=' '.join(node.text or '' for node in root.iter()
+                                if node.tag.endswith(('}text','}title')))
+                with self.subTest(path=path):
+                    self.assertNotRegex(labels.lower(),r'preview|updated|fixed identity|daily rotation|selected \d|\d{4}-\d{2}-\d{2}')
+        self.assertNotRegex(outputs['themes/README.md'].lower(),r'preview|updated')
 
     def test_new_catalog_entry_automatically_gets_an_index_row_and_readme(self):
         extra = dict(THEMES[-1], id='new-era', name='New Era')

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="280" height="64" viewBox="0 0 280 64" role="img" aria-labelledby="title">
-<title id="title">Daily profile</title>
+<title id="title">Profile</title>
 <defs>
 
 
@@ -22,4 +22,4 @@
 <style>svg{font-family:Arial, sans-serif;color:#162254;}.mono{font-family:'Lucida Console',Consolas,monospace;}
  .device-float{animation:levitate 6s ease-in-out infinite;}@keyframes levitate{50%{transform:translateY(-7px)}}.era-copy{animation:chrome-copy 13s ease-in-out infinite}.meter-head{animation:chrome-sweep 5s cubic-bezier(.7,0,.2,1) infinite}@keyframes chrome-sweep{0%,15%{transform:translateX(-40px)}70%,100%{transform:translateX(var(--travel))}}@keyframes chrome-copy{0%,100%{letter-spacing:1px}50%{letter-spacing:1.6px}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
-</style><path d="M22 12H268L258 46H12Z" fill="url(#chrome)" stroke="#7d8cac" stroke-width="1" /><text x="140.0" y="35" font-size="12" fill="#182b5b" font-family="Arial, sans-serif" text-anchor="middle" font-weight="bold" letter-spacing="2">DAILY PROFILE</text></svg>
+</style><path d="M22 12H268L258 46H12Z" fill="url(#chrome)" stroke="#7d8cac" stroke-width="1" /><text x="140.0" y="35" font-size="12" fill="#182b5b" font-family="Arial, sans-serif" text-anchor="middle" font-weight="bold" letter-spacing="2">PROFILE</text></svg>

@@ -10,6 +10,16 @@ SVG='{http://www.w3.org/2000/svg}'
 
 
 class GlassTests(unittest.TestCase):
+    def test_content_aurora_flows_faster_than_the_banner(self):
+        banner=ET.fromstring(materials.waves(130))
+        content=ET.fromstring(materials.waves(440))
+        def durations(node):
+            return {key:float(value.rstrip('s')) for key,value in
+                    (item.split(':') for item in node.get('style').split(';'))}
+        for key,duration in durations(banner).items():
+            self.assertLess(durations(content)[key],duration)
+        self.assertIn('var(--mint-duration,8s)',materials.motion('glass'))
+
     def test_aurora_height_thickness_and_velocity_match_at_loop_seam(self):
         for base,amplitude,phase in ((190,70,.5),(145,62,0),(265,45,2.2)):
             for x in (-100,0,100,450,899):
@@ -36,9 +46,13 @@ class GlassTests(unittest.TestCase):
             self.assertEqual(set(rows),set(data['languages']))
             for name,row in rows.items():
                 clip=next(row.iter(SVG+'clipPath')).find(SVG+'rect')
-                self.assertAlmostEqual(float(clip.get('width')),168*data['languages'][name]/10000)
+                self.assertAlmostEqual(float(clip.get('width')),200*data['languages'][name]/10000)
                 self.assertIsNone(clip.get('class'))
                 self.assertTrue(any(node.text==name for node in row.iter(SVG+'text')))
+                track=next(node for node in row.iter() if node.get('data-language-track'))
+                self.assertEqual(float(track.get('width')),200)
+                self.assertNotEqual(track.get('fill'),'#0b173d')
+                self.assertFalse(list(row.iter(SVG+'circle')))
 
 
 if __name__=='__main__':

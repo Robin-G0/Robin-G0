@@ -1,10 +1,10 @@
 # Visual eras
 
-[← Daily profile](../README.md)
+[← Profile](../README.md)
 
-Explore every implemented theme at any time. Each preview keeps its own visual identity and shares the latest public statistics. Opening a preview does not change the daily profile.
+Explore every visual identity. All themes share the same profile and public statistics.
 
-11 themes · previews updated 2026-11-13 (UTC). Rows follow each theme’s light/dark appearance.
+11 themes. Rows follow each theme’s light/dark appearance.
 
 <!-- Generated from scripts/profile_themes.py; add themes to that catalog. -->
 <table>

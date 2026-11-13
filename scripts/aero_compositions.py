@@ -119,16 +119,15 @@ def activity(t,data,a):
         b+=a.meter(t,213,y-11,540*pct,12,'url(#aero-blue)',i,6)
     if not rows:
         b+=copy(a,44,220,'No detected languages.' if data['status']=='ready' else 'Statistics pending collection.',15)
-    updated=data.get('updated') or 'pending'
     b+=copy(a,44,h-47,'Public repositories / Language share by bytes',10,MUTED)
-    b+=copy(a,44,h-27,'Filtered additions + deletions / Updated '+updated+' UTC',10,MUTED)
+    b+=copy(a,44,h-27,'Filtered additions + deletions',10,MUTED)
     return a.svg(t,h,'Public activity: personal commits, filtered line edits, repositories and every detected language',b+'</g>')
 
 
 def label_card(t,selected,preview,number,a):
     row=number is not None;h=144
-    head=f'{number:02} / THEME COLLECTION' if row else 'THEME PREVIEW' if preview else 'CURRENT THEME'
-    detail='Open theme →' if row else f'{"Preview updated" if preview else "Selected"} {selected.isoformat()} UTC / {"fixed identity" if preview else "daily rotation"}'
+    head=f'{number:02} / THEME COLLECTION' if row else 'VISUAL IDENTITY'
+    detail='Open theme →' if row else ''
     b=background(a,'aero-sky-v3.jpg',h,'aero-title')
     # Fade to paper along the text edge, keeping the globe visible at the right.
     b+=a.P('M0 0H615L555 144H0Z','none',fill='#effbff',opacity='.88')

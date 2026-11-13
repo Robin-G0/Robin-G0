@@ -30,7 +30,7 @@ THEME_STATE = ASSETS / "theme.json"
 BUTTONS = {'source':'Project source', 'demo':'Interactive demo', 'studio':'Open Studio',
            'website':'Website', 'repos':'Repositories', 'themes':'All themes',
            'data':'Statistics data', 'previous':'Previous theme',
-           'next':'Next theme', 'daily':'Daily profile'}
+           'next':'Next theme', 'daily':'Profile'}
 
 
 def flight(t):
@@ -52,8 +52,7 @@ def theme_banner(t, selected, preview=False):
 def themed_readme(readme, theme, selected, preview=False, revision=None):
     """A Markdown label stays readable without loading the decorative banner."""
     block = (f"<!-- current-theme:start -->\n"
-             f"<!-- {'Preview theme' if preview else 'Current theme'}: {escape(theme['name'])} / {escape(theme['era'])} / "
-             f"{'Updated' if preview else 'Selected'} {selected.isoformat()} UTC -->\n"
+             f"<!-- Visual identity: {escape(theme['name'])} / {escape(theme['era'])} -->\n"
              f"<!-- current-theme:end -->")
     pattern = r'<!-- current-theme:start -->.*?<!-- current-theme:end -->'
     if re.search(pattern, readme, flags=re.S):
@@ -125,7 +124,7 @@ def gallery_outputs(readme, data, selected, identities=None):
         preview = preview.replace('(assets/stats.json)', '(../../assets/stats.json)')
         preview = preview.replace('href="assets/stats.json"', 'href="../../assets/stats.json"')
         preview = preview.replace('alt="Current visual theme, era and selection date"',
-                                  'alt="Fixed visual theme preview, era and update date"')
+                                  'alt="Visual identity and era"')
         preview = themed_readme(preview, identity, selected, preview=True, revision=asset_revision(assets))
         outputs[f'{base}/README.md'] = preview
         for mode, theme in variants(identity).items():
@@ -139,12 +138,9 @@ def gallery_outputs(readme, data, selected, identities=None):
 </picture></a>
 </td></tr>''')
     outputs['themes/README.md'] = (
-        '# Visual eras\n\n[← Daily profile](../README.md)\n\n'
-        'Explore every implemented theme at any time. Each preview keeps its own '
-        'visual identity and shares the latest public statistics. Opening a preview '
-        'does not change the daily profile.\n\n'
-        f'{len(ids)} themes · previews updated {selected.isoformat()} (UTC). '
-        'Rows follow each theme’s light/dark appearance.\n\n'
+        '# Visual eras\n\n[← Profile](../README.md)\n\n'
+        'Explore every visual identity. All themes share the same profile and public statistics.\n\n'
+        f'{len(ids)} themes. Rows follow each theme’s light/dark appearance.\n\n'
         '<!-- Generated from scripts/profile_themes.py; add themes to that catalog. -->\n'
         '<table>\n' + '\n'.join(rows) + '\n</table>\n')
     return outputs

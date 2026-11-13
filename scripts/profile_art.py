@@ -559,7 +559,6 @@ def activity(t,data):
     if k=='aero':
         return aero.activity(t,data,sys.modules[__name__])
     rows=language_rows(data);values=metrics(data);a=t['accent'];ink=t['ink'];mut=t['muted'];css=''
-    updated=data['updated'] if data.get('updated') else 'pending'
     foot='Public repositories · Language share by bytes · Filtered additions + deletions'
     if k=='phosphor':
         h=306+max(len(rows),1)*29;b=R(0,0,900,h,'#080f09',15)+R(0,0,900,h,'url(#scan)',15)
@@ -568,7 +567,7 @@ def activity(t,data):
         b+=T(35,184,'LANGUAGE              DISTRIBUTION                         SHARE',12,a,font=MONO)
         for i,(name,pct,label) in enumerate(rows):
             y=218+i*29;blocks=max(1,round(pct*40));b+=T(35,y,name,13,a,font=MONO)+T(255,y,'█'*blocks,13,a,font=MONO)+meter(t,255,y-12,blocks*7.8,13,a,i,base=False)+T(856,y,label,13,a,font=MONO,text_anchor='end')
-        b+=T(35,h-43,'UPDATED '+updated+' UTC',10,a,font=MONO)+T(35,h-20,foot,10,a,font=MONO)
+        b+=T(35,h-20,foot,10,a,font=MONO)
     elif k=='desktop95':
         h=282+max(len(rows),1)*28;b=R(0,0,900,h,'#087e7d')+window95(13,12,874,h-27,'System Monitor — Public GitHub activity')
         b+=R(25,58,196,h-88,'#d1d1d1',0,'#808080')
@@ -576,7 +575,7 @@ def activity(t,data):
         b+=R(237,59,634,h-89,'#fff',0,'#808080')+T(254,88,'Language',13,'#111')+T(850,88,'Code size',13,'#111',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
             y=123+i*28;b+=language_icon(name,254,y-15,16)+T(280,y,name,12,'#111')+meter(t,406,y-11,330*pct,13,'#000080',i)+T(852,y,label,12,'#111',text_anchor='end')
-        b+=T(34,h-23,'Updated '+updated+' UTC · owned public repositories',10,'#111')
+        b+=T(34,h-23,'Owned public repositories',10,'#111')
     elif k=='construction':
         h=280+max(len(rows),1)*29;b=R(0,0,900,h,'#050523')+R(0,0,900,h,'url(#stars)')
         b+=T(450,43,'★ MY GITHUB STATS ★',29,'#ffff66',font=SERIF,text_anchor='middle',font_weight='bold')
@@ -585,7 +584,7 @@ def activity(t,data):
         b+=P('M28 181H872','#ffed00',3)
         for i,(name,pct,label) in enumerate(rows):
             y=218+i*29;c=COLORS[i%len(COLORS)];b+=T(31,y,name,16,'#fff',font=SERIF)+meter(t,220,y-13,540*pct,15,c,i)+T(867,y,label,14,'#ffff66',font=MONO,text_anchor='end')
-        b+=T(450,h-33,'Last updated: '+updated+' UTC',12,'#bdbdff',font=SERIF,text_anchor='middle')+T(450,h-12,foot,11,'#fff',font=SERIF,text_anchor='middle')
+        b+=T(450,h-12,foot,11,'#fff',font=SERIF,text_anchor='middle')
     elif k=='matrix':
         h=max(448,140+len(rows)*28);b=R(0,0,900,h,'#020906')+P(f'M321 30V{h-30}',a,1)
         b+=T(28,47,'ACTIVITY / PUBLIC',12,a,font=MONO,letter_spacing=2)
@@ -593,14 +592,14 @@ def activity(t,data):
         b+=T(350,48,'LANGUAGE DISTRIBUTION',11,a,font=MONO)
         for i,(name,pct,label) in enumerate(rows):
             y=87+i*28;b+=T(351,y,name,11,'#b1d5bd',font=MONO)+meter(t,500,y-6,272*pct,3,a,i)+T(870,y,label,11,a,font=MONO,text_anchor='end')
-        b+=T(28,h-20,updated+' UTC / DEFAULT BRANCH HISTORY',10,a,font=MONO)
+        b+=T(28,h-20,'PUBLIC / DEFAULT BRANCH HISTORY',10,a,font=MONO)
     elif k=='y2k':
         h=330+max(len(rows),1)*28;b=R(0,0,900,h,t['bg'])+R(0,0,900,21,'url(#chrome)')+H(t,29,84,'Public activity',45,ink)
         for i,(v,label) in enumerate(values):
             x=30+i*289;b+=P(f'M{x} 113H{x+269}L{x+256} 219H{x-1}Z','#8895b4',1,'url(#chrome)')+T(x+18,163,v,35,'#192747',font='Arial, sans-serif',font_weight='bold',font_style='italic')+T(x+18,193,label.upper(),10,'#243857',letter_spacing=1)
         for i,(name,pct,label) in enumerate(rows):
             y=267+i*28;b+=T(32,y,name,13,ink)+meter(t,207,y-8,566*pct,9,a,i)+T(870,y,label,12,mut,text_anchor='end')
-        b+=P(f'M30 {h-45}H870',a,1)+T(30,h-20,'PUBLIC DATA / '+updated+' UTC',11,mut,letter_spacing=2)
+        b+=P(f'M30 {h-45}H870',a,1)+T(30,h-20,'PUBLIC DATA',11,mut,letter_spacing=2)
     elif k=='aqua':
         h=258+max(len(rows),1)*28;b=R(0,0,900,h,'#316fae')+aqua_window(16,15,868,h-30,'GitHub Library — Statistics')
         b+=R(29,61,187,h-94,'#dce7ef')+T(44,92,'LIBRARY',10,'#62778a',font_weight='bold')
@@ -608,7 +607,7 @@ def activity(t,data):
         b+=T(235,89,'Language',12,'#344f68')+T(853,89,'Share',12,'#344f68',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
             y=121+i*28;b+=R(226,y-19,643,28,'#e7eff7' if i%2==0 else '#fff')+C(243,y-5,5,COLORS[i%6])+T(259,y,name,12,'#294b69')+meter(t,433,y-11,337*pct,12,'url(#gel)',i,6)+T(852,y,label,12,'#294b69',text_anchor='end')
-        b+=T(235,h-32,'Updated '+updated+' UTC · Public repositories only',10,'#49637a')
+        b+=T(235,h-32,'Public repositories only',10,'#49637a')
     elif k=='metro':
         h=267+math.ceil(max(len(rows),1)/3)*105;b=R(0,0,900,h,t['bg'])+H(t,30,65,'Public activity',45,ink)
         for i,(v,label) in enumerate(values):
@@ -616,7 +615,7 @@ def activity(t,data):
         for i,(name,pct,label) in enumerate(rows):
             x=30+(i%3)*288;y=218+(i//3)*105;c=['#145e93','#654698','#b3512b','#347c62'][i%4]
             b+=R(x,y,272,93,c)+language_icon(name,x+218,y+17,34,metro=True)+T(x+16,y+30,name,15,'#fff')+T(x+16,y+70,label,29,'#fff',font='Segoe UI Light, sans-serif')+meter(t,x+16,y+80,240*pct,3,'#ffffffbb',i)
-        b+=T(30,h-15,'Updated '+updated+' UTC · owned public repositories',11,mut)
+        b+=T(30,h-15,'Owned public repositories',11,mut)
     elif k=='material':
         h=284+math.ceil(max(len(rows),1)/2)*47;b=R(0,0,900,h,t['soft'])+R(23,19,854,h-42,t['bg'],8,filter='url(#shadow)')
         b+=T(46,58,'Public activity',24,ink)
@@ -625,7 +624,7 @@ def activity(t,data):
         for i,(name,pct,label) in enumerate(rows):
             x=48+(i%2)*413;y=216+(i//2)*47;c=COLORS[i%6]
             b+=C(x+5,y-4,5,c)+T(x+20,y,name,12,ink)+T(x+365,y,label,12,mut,text_anchor='end')+R(x+20,y+9,345,3,t['soft'])+meter(t,x+20,y+9,345*pct,3,a,i)
-        b+=T(48,h-40,'Updated '+updated+' UTC · filtered additions + deletions',10,mut)
+        b+=T(48,h-40,'Filtered additions + deletions',10,mut)
     elif k=='glass':
         h=290+math.ceil(max(len(rows),1)/2)*44;b=materials.glass_backdrop(h)+materials.lens(17,17,866,h-34,h);ink='#fff';mut='#d8e6fa'
         b+=H(t,40,72,'Public activity',38,ink)
@@ -635,11 +634,11 @@ def activity(t,data):
         for i,(_,pct,_) in enumerate(rows):b+=meter(t,x,190,815*pct,7,COLORS[i%6],i,3);x+=815*pct
         for i,(name,pct,label) in enumerate(rows):
             x=42+(i%2)*422;y=237+(i//2)*44;c=COLORS[i%6]
-            b+=f'<g data-language-row="{escape(name)}">'+C(x+4,y-4,4,c)+T(x+19,y,name,12,ink)
-            b+=R(x+142,y-8,168,7,'#0b173d',4,fill_opacity='.55')
-            b+=meter(t,x+142,y-8,168*pct,7,c,len(rows)+i,3)
+            b+=f'<g data-language-row="{escape(name)}">'+T(x,y,name,12,ink)
+            b+=R(x+128,y-10,200,10,c,5,fill_opacity='.32',data_language_track='true')
+            b+=meter(t,x+128,y-10,200*pct,10,c,len(rows)+i,5)
             b+=T(x+372,y,label,12,'#edf5ff',text_anchor='end')+'</g>'
-        b+=T(42,h-37,'Updated '+updated+' UTC · owned public repositories',10,mut)
+        b+=T(42,h-37,'Owned public repositories',10,mut)
     else:
         h=max(440,155+len(rows)*29);b=R(0,0,900,h,t['bg'])+R(0,0,900,h,'#b4a98c',opacity='.05',filter='url(#paper)')
         b+=T(35,30,'PUBLIC WORK / ACTIVITY LEDGER',10,a,font=MONO,letter_spacing=1)+P('M35 46H866',ink,1)
@@ -647,7 +646,7 @@ def activity(t,data):
         b+=P(f'M338 70V{h-54}',t['border'],1)+T(366,89,'Language',14,mut,font=SERIF)+T(862,89,'Share of code',14,mut,font=SERIF,text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
             y=123+i*29;b+=P(f'M366 {y+9}H863',t['border'],.6)+T(366,y,name,13,ink,font=SERIF)+T(862,y,label,13,ink,font=SERIF,text_anchor='end')+meter(t,549,y-5,218*pct,2,a,i)
-        b+=P(f'M35 {h-41}H866',ink,1)+T(37,h-19,'Recorded '+updated+' UTC · Public repositories only',10,mut,font=MONO)
+        b+=P(f'M35 {h-41}H866',ink,1)+T(37,h-19,'Public repositories only',10,mut,font=MONO)
     if not rows:
         notice_ink={'aqua':'#294b69','aero':'#275b72','desktop95':'#111','construction':'#fff','matrix':'#67ff9c','phosphor':a}.get(k,mut)
         b+=T(365 if k in ('matrix','field-notes') else 35,228,'Statistics pending collection.' if data['status']!='ready' else 'No detected languages.',13,notice_ink)
@@ -660,8 +659,8 @@ def label_card(t,selected=None,preview=False,number=None):
     if k=='aero':
         return aero.label_card(t,selected,preview,number,sys.modules[__name__])
     name=t['name'];era=t['era'];row=number is not None
-    head=f'{number:02} / THEME COLLECTION' if row else ('THEME PREVIEW' if preview else 'CURRENT THEME')
-    detail='Open theme →' if row else f"{'Preview updated' if preview else 'Selected'} {selected.isoformat()} UTC · {'fixed identity' if preview else 'daily rotation'}"
+    head=f'{number:02} / THEME COLLECTION' if row else 'VISUAL IDENTITY'
+    detail='Open theme →' if row else ''
     h=130;a=t['accent'];ink=t['ink'];font=t['font'];css=''
     if k=='desktop95':
         b=R(0,0,900,h,'#087e7d')+window95(4,3,892,122,name)+T(23,62,head,10,'#444')+H(t,22,97,name,30,'#000080')+T(870,96,era,12,'#222',text_anchor='end')+T(23,116,detail,10,'#444')
@@ -684,4 +683,4 @@ def label_card(t,selected=None,preview=False,number=None):
         b=materials.glass_backdrop(h)+materials.lens(10,10,880,110,h,radius=16)+T(31,33,head,10,'#dae6ff',letter_spacing=2)+H(t,29,82,name,40,'#fff')+T(32,109,detail,10,'#dae6ff')+T(869,106,era,12,'#dae6ff',text_anchor='end')
     else:
         b=R(0,0,900,h,t['bg'])+P('M24 17H876M24 120H876',ink,1)+T(25,36,head,9,a,font=MONO,letter_spacing=2)+H(t,23,85,name,43,ink)+T(25,109,detail,10,t['muted'],font=SERIF,font_style='italic')+T(873,107,era,12,t['muted'],font=SERIF,text_anchor='end')
-    return svg(t,h,f"{'Explore' if row else 'Preview' if preview else 'Current theme'}: {name} — {era}",b,css)
+    return svg(t,h,f"{'Explore' if row else 'Visual identity'}: {name} — {era}",b,css)

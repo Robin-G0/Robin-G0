@@ -48,7 +48,7 @@ MOTION = {
 def motion(theme):
     selectors=MOTION.get(theme, '')
     if theme=='glass':
-        selectors+=''' .aurora-mint{animation:aurora-current 24s linear infinite}.aurora-violet{animation:aurora-current 36s linear -9s infinite;animation-direction:reverse}.aurora-blue{animation:aurora-current 48s linear -16s infinite}'''
+        selectors+=''' .aurora-mint{animation:aurora-current var(--mint-duration,8s) linear infinite}.aurora-violet{animation:aurora-current var(--violet-duration,12s) linear -3s infinite;animation-direction:reverse}.aurora-blue{animation:aurora-current var(--blue-duration,16s) linear -5s infinite}'''
     keyframes='''
 @keyframes meter-step{0%,12%{transform:translateX(-40px)}75%,100%{transform:translateX(var(--travel))}}
 @keyframes stripe-scroll{to{transform:translateX(24px)}}
@@ -105,7 +105,8 @@ def aurora_curtain(base,amplitude,phase,color,klass):
 
 def waves(height=440):
     """A flowing periodic light field, reused through the refracting lens."""
-    return (f'<g transform="scale(1 {height/440:.4f})" aria-hidden="true">'
+    pace='--mint-duration:24s;--violet-duration:36s;--blue-duration:48s' if height<=144 else '--mint-duration:8s;--violet-duration:12s;--blue-duration:16s'
+    return (f'<g transform="scale(1 {height/440:.4f})" style="{pace}" aria-hidden="true">'
             '<rect width="900" height="440" fill="url(#aurora)"/>'
             +aurora_curtain(190,70,.5,'curtain-violet','aurora-violet')
             +aurora_curtain(145,62,0,'curtain-mint','aurora-mint')
