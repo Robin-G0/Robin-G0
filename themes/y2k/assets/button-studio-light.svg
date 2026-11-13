@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="280" height="64" viewBox="0 0 280 64" role="img" aria-labelledby="title">
 <title id="title">Open Studio</title>
 <defs>
+
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
 <linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -18,10 +19,6 @@
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
 <style>text{font-family:Arial, sans-serif;}svg{color:#162254;}.mono{font-family:'Lucida Console',Consolas,monospace;}
-.stat-fill{transform-box:fill-box;transform-origin:left;animation:download-fill 1.4s ease-out backwards;}
-.stat-sheen{animation:download-shine var(--duration,5s) ease-in-out infinite;}
-@keyframes download-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes download-shine{0%,12%{transform:translateX(0)}68%,100%{transform:translateX(var(--travel))}}
- .device-float{animation:levitate 6s ease-in-out infinite;}@keyframes levitate{50%{transform:translateY(-7px)}}
+ .device-float{animation:levitate 6s ease-in-out infinite;}@keyframes levitate{50%{transform:translateY(-7px)}}.era-copy{animation:chrome-copy 13s ease-in-out infinite}.meter-head{animation:chrome-sweep 5s cubic-bezier(.7,0,.2,1) infinite}@keyframes chrome-sweep{0%,15%{transform:translateX(-40px)}70%,100%{transform:translateX(var(--travel))}}@keyframes chrome-copy{0%,100%{letter-spacing:1px}50%{letter-spacing:1.6px}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
 </style><path d="M22 12H268L258 46H12Z" fill="url(#chrome)" stroke="#7d8cac" stroke-width="1" /><text x="140.0" y="35" font-size="12" fill="#182b5b" font-family="Arial, sans-serif" text-anchor="middle" font-weight="bold" letter-spacing="2">OPEN STUDIO</text></svg>

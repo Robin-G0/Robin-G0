@@ -10,6 +10,10 @@ import base64
 from functools import lru_cache
 from pathlib import Path
 from xml.sax.saxutils import escape
+try:
+    from . import era_materials as materials
+except ImportError:
+    import era_materials as materials
 
 TYPE = json.loads(Path(__file__).with_name('typefaces.json').read_text(encoding='utf-8'))
 MONO = "'Lucida Console',Consolas,monospace"
@@ -60,13 +64,29 @@ def language_icon(name,x,y,size,metro=False):
 
 
 def meter(t,x,y,w,h,color,index,rx=0,base=True):
-    """A sheen stays clipped to the measured value; percentages never fluctuate."""
+    """Era-specific activity textures clipped to an unchanging measured share."""
+    k=t['id'];w=max(w,.01)
     uid=f'meter-{index}'
-    duration={'phosphor':5.3,'desktop95':4.2,'construction':3.7,'matrix':5.7,'y2k':4.6,'aqua':5.1,'aero':6.2,'metro':4.8,'material':5.4,'glass':7.1,'field-notes':8.2}.get(t['id'],5)
-    body=f'<defs><clipPath id="{uid}">{R(x,y,max(w,.01),h,"#fff",rx)}</clipPath></defs><g clip-path="url(#{uid})">'
-    if base:body+=R(x,y,max(w,.01),h,color,rx,**{'class':'stat-fill','style':f'animation-delay:{index*.09:.2f}s'})
-    sheen='#c8d2f4' if t['id']=='desktop95' else '#e9d5a6' if t['id']=='field-notes' else 'url(#download-glint)'
-    body+=R(x-34,y,32,h,sheen,**{'class':'stat-sheen','style':f'--travel:{w+70:.2f}px;--duration:{duration}s;animation-delay:-{index*.41:.2f}s'})
+    body=f'<defs><clipPath id="{uid}">{R(x,y,w,h,"#fff",rx)}</clipPath></defs><g clip-path="url(#{uid})" data-meter-style="{k}">'
+    surface='url(#aero-blue)' if k=='aero' else 'url(#gel)' if k=='aqua' else color
+    style=f'--travel:{w+50:.2f}px;--phase:-{index*.43:.2f}s'
+    if base:body+=R(x,y,w,h,surface,rx,**{'class':'meter-ink' if k=='field-notes' else 'meter-base'})
+    if k in ('desktop95','y2k','phosphor','matrix'):
+        step=9 if k=='desktop95' else 12 if k=='y2k' else 8
+        for offset in range(step,int(w)+step,step):
+            body+=R(x+offset-2,y,2,h,'#fff' if k=='desktop95' else t['bg'],opacity='.95')
+        if k=='y2k':body+=P(f'M{x} {y+1}H{x+w}', '#fff',1,opacity='.65')
+        body+=R(x,y,step*2,h,'#fff' if k=='matrix' else '#b1c7ef',opacity='.5',**{'class':'stat-sheen meter-head','style':style})
+    elif k in ('aqua','construction'):
+        body+=R(x-24,y,w+48,h,'url(#candy)' if k=='aqua' else 'url(#hatch)',**{'class':'stat-sheen meter-texture','style':f'animation-delay:-{index*.17}s'})
+        if k=='aqua':body+=P(f'M{x+3} {y+2}H{x+max(3,w-3)}','#fff',1,opacity='.65')
+    elif k=='metro':
+        for dot in range(4):
+            body+=C(x,y+h/2,max(1,h*.42),'#fff',**{'class':'stat-sheen meter-dot','style':f'--travel:{w+20:.2f}px;--phase:-{index*.43+dot*.14:.2f}s'})
+    elif k=='field-notes':
+        body+=P(f'M{x} {y+h/2}H{x+w}',color,.6,stroke_dasharray='1 3',**{'class':'stat-sheen meter-ink'})
+    else:
+        body+=R(x,y,48 if k=='aero' else 36,h,'url(#download-glint)' if k in ('aero','glass') else '#ffffff88',rx,**{'class':'stat-sheen meter-head','style':style})
     return body+'</g>'
 
 
@@ -103,9 +123,12 @@ def C(x,y,r,fill,stroke='none',**attrs):
 
 def svg(t,h,title,body,css=''):
     motion=ERA_MOTION.get(t['id'],'')
+    motion+=materials.motion(t['id'])
+    body=materials.copy_motion(body,t['id'])
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="900" height="{h}" viewBox="0 0 900 {h}" role="img" aria-labelledby="title">
 <title id="title">{escape(title)}</title>
 <defs>
+{materials.definitions(t['id'])}
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
 <linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -123,10 +146,6 @@ def svg(t,h,title,body,css=''):
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
 <style>text{{font-family:{t['font']};}}svg{{color:{t['ink']};}}.mono{{font-family:{MONO};}}
-.stat-fill{{transform-box:fill-box;transform-origin:left;animation:download-fill 1.4s ease-out backwards;}}
-.stat-sheen{{animation:download-shine var(--duration,5s) ease-in-out infinite;}}
-@keyframes download-fill{{from{{transform:scaleX(0)}}to{{transform:scaleX(1)}}}}
-@keyframes download-shine{{0%,12%{{transform:translateX(0)}}68%,100%{{transform:translateX(var(--travel))}}}}
 {css} {motion}
 @media(prefers-reduced-motion:reduce){{*{{animation:none!important;}}.trail{{stroke-dashoffset:0!important;}}}}
 </style>{body}</svg>'''.replace('\u2014',' / ').replace('\u2013','-')
@@ -202,9 +221,9 @@ def button(t,x,y,label,kind=None,w=180):
     if k=='construction':
         return R(x,y,w,34,'#ffef00',0,'#fff',stroke_width=2)+T(x+w/2,y+23,label,17,'#000080',font=SERIF,text_anchor='middle',font_weight='bold')
     if k=='aqua':
-        return R(x,y,w,32,'url(#gel)',16,'#2463a0')+T(x+w/2,y+22,label,13,'#fff',text_anchor='middle',font_weight='bold')
+        return R(x,y,w,32,'url(#gel)',16,'#2463a0')+R(x+8,y+3,w-16,9,'#ffffff77',7,**{'class':'gel-breathe'})+T(x+w/2,y+22,label,13,'#fff',text_anchor='middle',font_weight='bold')
     if k=='aero':
-        return R(x,y,w,36,'#147fb7',7,'#d8f7ff')+R(x+2,y+2,w-4,15,'#fff',5,opacity='.25')+T(x+w/2,y+24,label,14,'#fff',text_anchor='middle')
+        return R(x,y,w,36,'url(#aero-blue)',7,'#b4edff')+R(x+3,y+2,w-6,14,'#fff',5,opacity='.32',**{'class':'gel-breathe'})+P(f'M{x+9} {y+33}H{x+w-9}','#75dfff',1,opacity='.7')+T(x+w/2,y+24,label,14,'#fff',text_anchor='middle')
     if k=='y2k':
         d=f'M{x+10} {y}H{x+w}L{x+w-10} {y+34}H{x}Z'
         return P(d,'#7d8cac',1,'url(#chrome)')+T(x+w/2,y+23,label.upper(),12,'#182b5b',font='Arial, sans-serif',text_anchor='middle',font_weight='bold',letter_spacing=2)
@@ -228,8 +247,10 @@ def window95(x,y,w,h,title):
 
 
 def aqua_window(x,y,w,h,title):
-    b=R(x,y,w,h,'#edf2f6',12,'#7b93a9',filter='url(#shadow)')+R(x+1,y+1,w-2,34,'url(#chrome)',11)
-    b+=R(x+1,y+20,w-2,15,'url(#chrome)')
+    # One continuous gradient; no repeated chrome band through the baseline.
+    b=R(x,y,w,h,'#edf2f6',12,'#7b93a9',filter='url(#shadow)')
+    b+=P(f'M{x+12} {y+1}H{x+w-12}Q{x+w-1} {y+1} {x+w-1} {y+12}V{y+35}H{x+1}V{y+12}Q{x+1} {y+1} {x+12} {y+1}Z','none',fill='url(#aqua-title)',data_aqua_titlebar='true')
+    b+=P(f'M{x+1} {y+35}H{x+w-1}','#9daab7',1)
     for i,c in enumerate(('#f2766c','#f2cb69','#83c77b')): b+=C(x+18+i*22,y+17,6,c,'#77818d')+C(x+16+i*22,y+15,2,'#ffffff88')
     return b+T(x+w/2,y+22,title,13,'#2c3c4b',text_anchor='middle')
 
@@ -272,6 +293,8 @@ def scene_desktop95(t,kind):
     else:
         b+=window95(120,20,737,357,'Motion Input Grid — Properties')+T(138,69,'File     Profile     Camera     Help',12,'#111')
         b+=R(136,85,282,233,'#fff',0,'#808080')+grid(174,104,68,'#000080','#d5d5ee','#fff',True)
+        b+=P('M0 0V22L6 16 11 26 15 24 10 14H19Z','#fff',1.5,'#111',**{'class':'selection-pointer'})
+        css+='.selection-pointer{transform:translate(341px,200px);animation:desktop-pointer 8s steps(1) infinite}@keyframes desktop-pointer{0%,100%{transform:translate(205px,132px)}25%{transform:translate(205px,200px)}50%{transform:translate(273px,200px)}75%{transform:translate(341px,200px)}}'
         b+=H(t,442,127,'Motion Input Grid',31,'#111')+T(443,164,'Body movements as input.',16,'#222')
         b+=T(443,196,'Web · Desktop · Games',14,'#333')+T(443,227,'Open source. Looking for testers.',13,'#333')
         b+=button(t,443,263,'Open project',w=171)+T(638,285,'Testers welcome',12,'#333')+T(139,349,'Status: waiting for a movement...',12,'#111');css+=GRID_CSS
@@ -337,6 +360,8 @@ def scene_y2k(t,kind):
         b+=H(t,33,142,'Motion',68,t['ink'])+H(t,33,206,'Input Grid',68,t['ink'])+T(37,242,'MOTION INPUT FRAMEWORK / OPEN SOURCE',11,t['accent'],letter_spacing=1)
         b+=button(t,36,288,'Explore project',w=233)+T(37,374,'WEB  /  DESKTOP  /  GAMES',12,t['muted'],letter_spacing=2)
         b+=f'<g class="device-float"><g transform="translate(649 187) skewY(-14)">{grid(0,0,44,"#263d7a","#b4c5ee","#e7ecfc",True)}</g></g>'
+        for i in range(3):b+=C(621+i*18,294,3,'#b5ecff',**{'class':'port-light','style':f'animation-delay:{i*.3}s'})
+        css+='.port-light{animation:port-light 3s steps(1) infinite}@keyframes port-light{0%,60%,100%{opacity:.2}20%,40%{opacity:1}}'
     b+=P('M0 411H900',t['accent'],3)+P('M750 404H900',t['accent'],10)
     return svg(t,420,'Robin-G0 — Y2K chrome and orbital sculpture' if kind=='flight' else 'Motion Input Grid — Y2K industrial interface',b,css)
 
@@ -353,8 +378,13 @@ def scene_aqua(t,kind):
         f,c=flight_path(t,'M 368 327 Q 571 260 775 327','#2b6eb9','jet',19);b+=f;css+=c
         b+=T(327,366,'CANADA',10,'#355b78',letter_spacing=2)+T(814,366,'FRANCE',10,'#355b78',text_anchor='end',letter_spacing=2)
     else:
-        b+=aqua_window(28,22,844,382,'Motion Input Grid')+R(29,57,842,43,'url(#chrome)')
-        b+=T(48,83,'Profile     Camera     Recognize',13,'#293d50')+R(44,114,368,258,'#142e42',6)
+        b+=aqua_window(28,22,844,382,'Motion Input Grid')+R(29,58,842,42,'url(#aqua-toolbar)')
+        for i,(label,w) in enumerate((('Profile',70),('Camera',78),('Recognize',99))):
+            x=43+sum((70,78,99)[:i])
+            b+=T(x+(w-5)/2,83,label,13,'#253e55',text_anchor='middle')
+            b+=f'<g class="aqua-tab aqua-tab-{i}" style="animation-delay:-{i*2}s">'+R(x,65,w-5,27,'url(#gel)',5,'#7499bb')+T(x+(w-5)/2,83,label,13,'#fff',text_anchor='middle')+'</g>'
+        css+='.aqua-tab{opacity:0;animation:aqua-tab 6s steps(1) infinite}.aqua-tab-0{opacity:1}@keyframes aqua-tab{0%,32%{opacity:1}33%,100%{opacity:0}}'
+        b+=R(44,114,368,258,'#142e42',6)
         b+=grid(126,139,68,'#a9d9ff','#244d68','#19394e')+T(62,355,'Camera input · Gesture recognition',10,'#aacfe5')
         b+=H(t,441,155,'Motion Input Grid',34,'#273d52')+T(443,192,'Body movements as application input.',16,'#4d6174')
         b+=T(443,231,'Websites, desktop applications and games.',13,'#4d6174')+T(443,260,'Open source. Testers welcome.',13,'#4d6174')
@@ -368,6 +398,7 @@ def scene_aero(t,kind):
     if kind=='flight':
         b+='<g class="aero-background">'+bitmap('art/aero-landscape.jpg',-15,-10,940,470)+'</g>'
         b+=R(0,0,900,440,'url(#aero-shade)')
+        b+=materials.bubbles()
         b+=R(31,32,495,158,'#f3fbff',17,'#ffffffcc',fill_opacity='.82',filter='url(#shadow)')
         b+=P('M48 34H509','#fff',2,opacity='.8')+H(t,55,111,'Robin-G0',65,'#153d5c')
         b+=T(60,154,'CANADA / FRANCE',13,'#39718e',letter_spacing=3)
@@ -378,13 +409,16 @@ def scene_aero(t,kind):
     else:
         b+=R(0,0,900,440,'#b5d9eb')+bitmap('art/aero-landscape.jpg',0,-70,900,450,opacity='.2')
         b+=R(25,24,850,392,'#f3faff',15,'#fff',fill_opacity='.91',filter='url(#shadow)')
-        b+=R(28,27,844,36,'#c8e7f4',12)+R(28,48,844,15,'#c8e7f4')+T(49,51,'Motion Input Grid',13,'#2d607a')
+        b+=R(28,27,844,36,'url(#aero-blue)',12)+R(28,48,844,15,'#087cc5')+T(49,51,'Motion Input Grid',13,'#fff')
+        b+=P('M42 29H802','#e5faff',1,opacity='.8',**{'class':'gel-breathe'})
         b+=R(811,28,47,23,'#c96c61',3)+T(834,45,'×',18,'#fff',text_anchor='middle')
         b+=H(t,55,132,'Motion Input Grid',43,'#194c69')+T(58,172,'Open-source motion input framework.',16,'#426e83')
         b+=T(58,204,'Websites, desktop apps and games.',15,'#426e83')+button(t,58,249,'Explore project',w=213)
         b+=T(59,329,'Looking for testers',14,'#306c80')
         b+=R(536,92,285,259,'#0f3d5b',10,'#80b7cf')+R(546,102,265,239,'url(#graph)',7)
         b+=skeleton(665,120,1.35,'#c2f2ff',True)+C(741,145,26,'#bcda87',stroke='#f4ffe3',fill_opacity='.18',**{'class':'confirm'})
+        b+=C(741,145,20,'none','#d8fbff',stroke_width=2,**{'class':'aero-lock'})
+        css+='.aero-lock{transform-box:fill-box;transform-origin:center;animation:aero-lock 5s ease-out infinite}@keyframes aero-lock{0%{transform:scale(.4);opacity:0}25%{opacity:.8}80%,100%{transform:scale(1.7);opacity:0}}'
         b+=T(679,379,'LANDMARK PREVIEW',11,'#3b697f',text_anchor='middle',letter_spacing=2)
     return svg(t,440,'Robin-G0, Canada to France' if kind=='flight' else 'Motion Input Grid, Aero landmark preview',b+'</g>',css)
 
@@ -424,24 +458,25 @@ def scene_material(t,kind):
             x=58+i*267
             b+=R(x,157,249,133,t['soft'],6)+C(x+28,185,15,t['accent'])+T(x+28,190,i+1,12,t['bg'],text_anchor='middle')
             b+=T(x+20,227,label,21,t['ink'])+T(x+20,257,sub,12,t['muted'])
+            b+=R(x+20,277,209,3,t['accent'],**{'class':'pipeline-step','style':f'animation-delay:{i*1.8}s'})
+        css+='.pipeline-step{transform-box:fill-box;transform-origin:left;animation:pipeline-step 5.4s cubic-bezier(.4,0,.2,1) infinite}@keyframes pipeline-step{0%{transform:scaleX(0);opacity:0}10%,28%{transform:scaleX(1);opacity:1}34%,100%{transform:scaleX(1);opacity:0}}'
         b+=P('M305 221H322M572 221H589',t['accent'],2)+button(t,58,326,'Explore project',w=212)
         b+=C(815,347,26,t['accent'],filter='url(#shadow)')+C(815,347,27,'none',t['accent'],**{'class':'ink-ripple'})+P('M804 347H826M815 336V358',t['bg'],2)
     return svg(t,430,'Robin-G0 — Material paper profile and flight itinerary' if kind=='flight' else 'Motion Input Grid — Material movement pipeline',b,css)
 
 
 def scene_glass(t,kind):
-    b=R(0,0,900,440,'url(#aurora)',24);css=GRID_CSS
-    if kind=='flight':b+=P('M-90 390C85 -85 472 476 1002 24','#b1b4f8',100,opacity='.12',**{'class':'aurora-flow'})
+    b=materials.glass_backdrop();css=GRID_CSS
     if kind=='flight':
         b+=T(42,57,'PROFILE',11,'#dae6ff',letter_spacing=4)+H(t,39,159,'Robin-G0',77,'#fff')
         b+=T(45,204,'Software Engineer',24,'#edf2ff')+T(46,237,'Research & development',16,'#c5d6f4')
         b+=T(46,333,'Computer vision',15,'#e5eeff')+T(46,362,'Systems · Quantum computing',15,'#e5eeff')
-        b+=R(564,40,292,359,'url(#glass)',25,'#ffffff55',filter='url(#shadow)')+T(590,78,'CANADA / FRANCE',11,'#e6eeff',letter_spacing=2)
+        b+=materials.lens(564,40,292,359)+T(590,78,'CANADA / FRANCE',11,'#e6eeff',letter_spacing=2)
         b+=T(594,138,'CA',38,'#fff',font='Segoe UI Light, sans-serif')+T(824,337,'FR',38,'#fff',font='Segoe UI Light, sans-serif',text_anchor='end')
         f,c=flight_path(t,'M 622 177 C 784 159 643 289 791 283','#e7fbff','jet',20);b+=f;css+=c
         b+=P('M587 362H832','#ffffff44',1)+T(590,383,'ROUND TRIP',10,'#d6e4fa',letter_spacing=3)
     else:
-        b+=R(26,26,848,388,'url(#glass)',24,'#ffffff55')
+        b+=materials.lens(26,26,848,388)
         b+=f'<g class="spatial-device"><g transform="translate(67 94) skewY(-12)">{grid(0,0,87,"#c9ddff","#ffffff22","#ffffff09")}</g></g>'
         b+=H(t,390,143,'Motion Input Grid',44,'#fff')+T(393,185,'Body movements as input.',21,'#ecf2ff')
         b+=T(393,224,'An open-source framework for web,',15,'#cfdcf6')+T(393,248,'desktop applications and games.',15,'#cfdcf6')
@@ -463,6 +498,8 @@ def scene_field_notes(t,kind):
     else:
         b+=H(t,34,115,'Motion Input Grid',53,t['ink'])+T(40,151,'An open-source motion input framework.',17,t['muted'],font=SERIF)
         b+=R(464,175,400,188,'url(#graph)')+grid(582,180,57,t['accent'],t['soft'],t['bg'],True)
+        b+=P('M0 0L-3 -13 5 -9Z',t['ink'],.7,t['accent'],**{'class':'notebook-pen'})
+        css+=".notebook-pen{offset-path:path('M608 206V263H722');offset-distance:100%;offset-rotate:0deg;animation:notebook-pen 10s ease-in-out infinite}@keyframes notebook-pen{0%,8%{offset-distance:0%;opacity:1}30%,36%{offset-distance:35%}65%,91%{offset-distance:100%;opacity:1}96%,100%{offset-distance:100%;opacity:0}}"
         b+=P('M557 180H542V345H557M582 357V365H747V357',t['muted'],.8)+T(525,265,'3',11,t['muted'],font=MONO)+T(664,382,'REQUIRED CELLS → TRIGGER',9,t['accent'],font=MONO,text_anchor='middle')
         b+=T(40,207,'Body movements become actions',19,t['ink'],font=SERIF)+T(40,237,'in websites, desktop apps and games.',16,t['muted'],font=SERIF)
         b+=button(t,40,282,'Explore the project',w=241)+T(41,359,'Testers welcome.',15,t['muted'],font=SERIF,font_style='italic')
@@ -513,7 +550,7 @@ def about(t):
     elif k=='material':
         b=R(0,0,900,h,t['soft'])+R(18,15,864,239,t['bg'],7,filter='url(#shadow)')
     elif k=='glass':
-        b=R(0,0,900,h,'url(#aurora)',20)+R(15,15,870,242,'url(#glass)',18,'#ffffff55');ink='#fff';mut='#d8e6fa';a='#e5f4ff'
+        b=materials.glass_backdrop(h)+materials.lens(15,15,870,242,h,radius=18);ink='#fff';mut='#d8e6fa';a='#e5f4ff'
     else:
         b=R(0,0,900,h,t['bg'])+R(0,0,900,h,'#b4a98c',opacity='.05',filter='url(#paper)')+P('M29 20H873 M29 252H873',ink,.8)
     x=48 if k in ('desktop95','aqua') else 36;y=89 if k in ('desktop95','aqua') else 64
@@ -617,7 +654,7 @@ def activity(t,data):
             b+=C(x+5,y-4,5,c)+T(x+20,y,name,12,ink)+T(x+365,y,label,12,mut,text_anchor='end')+R(x+20,y+9,345,3,t['soft'])+meter(t,x+20,y+9,345*pct,3,a,i)
         b+=T(48,h-40,'Updated '+updated+' UTC · filtered additions + deletions',10,mut)
     elif k=='glass':
-        h=290+math.ceil(max(len(rows),1)/2)*44;b=R(0,0,900,h,t['bg'],24)+R(17,17,866,h-34,t['soft'],22,t['border'])
+        h=290+math.ceil(max(len(rows),1)/2)*44;b=materials.glass_backdrop(h)+materials.lens(17,17,866,h-34,h);ink='#fff';mut='#d8e6fa'
         b+=H(t,40,72,'Public activity',38,ink)
         for i,(v,label) in enumerate(values):
             x=41+i*286;b+=T(x,134,v,37,ink,font='Segoe UI Light, sans-serif')+T(x,164,label,12,mut)
@@ -666,7 +703,7 @@ def label_card(t,selected=None,preview=False,number=None):
     elif k=='material':
         b=R(0,0,900,h,t['soft'])+R(8,5,884,115,t['bg'],6,filter='url(#shadow)')+R(8,5,7,115,a,3)+T(33,31,head,10,t['muted'],letter_spacing=1)+H(t,31,81,name,40,ink)+T(34,107,detail,10,t['muted'])+T(865,105,era,12,t['muted'],text_anchor='end')
     elif k=='glass':
-        b=R(0,0,900,h,'url(#aurora)',20)+R(10,10,880,110,'url(#glass)',16,'#ffffff44')+T(31,33,head,10,'#dae6ff',letter_spacing=2)+H(t,29,82,name,40,'#fff')+T(32,109,detail,10,'#dae6ff')+T(869,106,era,12,'#dae6ff',text_anchor='end')
+        b=materials.glass_backdrop(h)+materials.lens(10,10,880,110,h,radius=16)+T(31,33,head,10,'#dae6ff',letter_spacing=2)+H(t,29,82,name,40,'#fff')+T(32,109,detail,10,'#dae6ff')+T(869,106,era,12,'#dae6ff',text_anchor='end')
     else:
         b=R(0,0,900,h,t['bg'])+P('M24 17H876M24 120H876',ink,1)+T(25,36,head,9,a,font=MONO,letter_spacing=2)+H(t,23,85,name,43,ink)+T(25,109,detail,10,t['muted'],font=SERIF,font_style='italic')+T(873,107,era,12,t['muted'],font=SERIF,text_anchor='end')
     return svg(t,h,f"{'Explore' if row else 'Preview' if preview else 'Current theme'}: {name} — {era}",b,css)
