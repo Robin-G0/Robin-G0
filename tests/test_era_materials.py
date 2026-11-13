@@ -45,6 +45,14 @@ class EraMaterialsTests(unittest.TestCase):
                 self.assertEqual(group.get('clip-path'),'url(#meter-0)')
                 self.assertNotIn('stat-fill',ET.tostring(group,encoding='unicode'))
 
+    def test_terminal_statistics_do_not_round_small_languages_to_whole_blocks(self):
+        theme=variants(THEMES[0])['light']
+        data=dict(pending('Robin-G0'),status='ready',languages={'Python':9999,'C':1})
+        root=ET.fromstring(art.activity(theme,data))
+        clip=next(node for node in root.iter(SVG+'clipPath') if node.get('id')=='meter-1')
+        self.assertAlmostEqual(float(clip.find(SVG+'rect').get('width')),540/10000)
+        self.assertFalse(any('█' in (node.text or '') for node in root.iter(SVG+'text')))
+
     def test_glass_filters_only_backdrop_and_has_reduced_motion_fallback(self):
         theme=variants(next(t for t in THEMES if t['id']=='glass'))['light']
         for document in (art.scene(theme,'flight'),art.scene(theme,'mig'),art.about(theme)):

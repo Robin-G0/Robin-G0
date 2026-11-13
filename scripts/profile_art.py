@@ -16,10 +16,12 @@ try:
     from . import era_materials as materials
     from . import aero_compositions as aero
     from . import preview_motion
+    from . import section_details
 except ImportError:
     import era_materials as materials
     import aero_compositions as aero
     import preview_motion
+    import section_details
 
 TYPE = json.loads(Path(__file__).with_name('typefaces.json').read_text(encoding='utf-8'))
 MONO = "'Lucida Console',Consolas,monospace"
@@ -308,7 +310,11 @@ def scene_desktop95(t,kind):
         css+='.selection-pointer{transform:translate(341px,200px);animation:desktop-pointer 8s steps(1) infinite}@keyframes desktop-pointer{0%,100%{transform:translate(205px,132px)}25%{transform:translate(205px,200px)}50%{transform:translate(273px,200px)}75%{transform:translate(341px,200px)}}'
         b+=H(t,442,127,'Motion Input Grid',31,'#111')+T(443,164,'Body movements as input.',16,'#222')
         b+=T(443,196,'Web · Desktop · Games',14,'#333')+T(443,227,'Open source. Looking for testers.',13,'#333')
-        b+=button(t,443,263,'Open project',w=171)+T(638,285,'Testers welcome',12,'#333')+T(139,349,'Status: waiting for a movement...',12,'#111');css+=GRID_CSS
+        b+=button(t,443,263,'Open project',w=171)+T(638,285,'Testers welcome',12,'#333')
+        b+=T(139,349,'Status: waiting for a movement...',12,'#111',**{'class':'desktop-status-wait'})+T(139,349,'Status: gesture matched',12,'#000080',**{'class':'desktop-status-match'})
+        css+=GRID_CSS+'''.trail,.confirm{animation-duration:8s}.desktop-status-wait{animation:desktop-wait 8s steps(1) infinite}.desktop-status-match{opacity:1;animation:desktop-match 8s steps(1) infinite}
+@keyframes desktop-wait{0%,69%,100%{opacity:1}70%,94%{opacity:0}}@keyframes desktop-match{0%,69%,95%,100%{opacity:0}70%,94%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.desktop-status-wait{opacity:0}}'''
     b+=R(0,386,900,34,'#c0c0c0')+P('M0 386H900','#fff',2)+button(t,5,390,'Start',w=75)+R(90,391,225,23,'#ddd',0,'#888')+T(102,407,'Network' if kind=='flight' else 'Motion Input Grid',12,'#111')+T(875,407,'CA ↔ FR',12,'#111',text_anchor='end')
     return svg(t,420,'Robin-G0 — a Windows 95 desktop' if kind=='flight' else 'Motion Input Grid — a Windows 95 configuration dialog',b,css)
 
@@ -546,7 +552,8 @@ def about(t):
     b+=T(x,y+44,role,size,ink,font=font)+T(x,y+73,'focused on research and development.',15,mut,font=font)
     b+=T(490,y+44,'Exploring computer vision and',16,ink,font=font)+T(490,y+73,'quantum computing at the moment.',16,ink,font=font)
     if k!='metro':b+=P(f'M458 {y-20}V{y+109}',a,.7,opacity='.35')
-    return svg(t,h,'About me: software engineer and full-stack developer focused on R&D; currently exploring computer vision and quantum computing',b)
+    detail,css=section_details.about(t,sys.modules[__name__])
+    return svg(t,h,'About me: software engineer and full-stack developer focused on R&D; currently exploring computer vision and quantum computing',b+detail,css)
 
 
 def metrics(data):
@@ -573,7 +580,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(35+i*288,103,v,32,a,font=MONO)+T(35+i*288,132,label.upper(),11,a,font=MONO)
         b+=T(35,184,'LANGUAGE              DISTRIBUTION                         SHARE',12,a,font=MONO)
         for i,(name,pct,label) in enumerate(rows):
-            y=218+i*29;blocks=max(1,round(pct*40));b+=T(35,y,name,13,a,font=MONO)+T(255,y,'█'*blocks,13,a,font=MONO)+meter(t,255,y-12,blocks*7.8,13,a,i,base=False)+T(856,y,label,13,a,font=MONO,text_anchor='end')
+            y=218+i*29;b+=T(35,y,name,13,a,font=MONO)+R(255,y-12,540,13,a,fill_opacity='.1')+meter(t,255,y-12,540*pct,13,a,i)+T(856,y,label,13,a,font=MONO,text_anchor='end')
         b+=T(35,h-20,foot,10,a,font=MONO)
     elif k=='desktop95':
         h=282+max(len(rows),1)*28;b=R(0,0,900,h,'#087e7d')+window95(13,12,874,h-27,'System Monitor — Public GitHub activity')
@@ -581,7 +588,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(40,91+i*95,label,12,'#333')+T(40,125+i*95,v,27,'#000080')
         b+=R(237,59,634,h-89,'#fff',0,'#808080')+T(254,88,'Language',13,'#111')+T(850,88,'Code size',13,'#111',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
-            y=123+i*28;b+=language_icon(name,254,y-15,16)+T(280,y,name,12,'#111')+meter(t,406,y-11,330*pct,13,'#000080',i)+T(852,y,label,12,'#111',text_anchor='end')
+            y=123+i*28;b+=language_icon(name,254,y-15,16)+T(280,y,name,12,'#111')+R(406,y-11,330,13,'#e6e6e6')+meter(t,406,y-11,330*pct,13,'#000080',i)+T(852,y,label,12,'#111',text_anchor='end')
         b+=T(34,h-23,'Owned public repositories',10,'#111')
     elif k=='construction':
         h=280+max(len(rows),1)*29;b=R(0,0,900,h,'#050523')+R(0,0,900,h,'url(#stars)')
@@ -590,7 +597,7 @@ def activity(t,data):
             x=28+i*294;b+=R(x,69,264,90,'#171148',0,'#8888ff')+T(x+132,109,v,30,'#6effcc',font=MONO,text_anchor='middle')+T(x+132,140,label,15,'#fff',font=SERIF,text_anchor='middle')
         b+=P('M28 181H872','#ffed00',3)
         for i,(name,pct,label) in enumerate(rows):
-            y=218+i*29;c=COLORS[i%len(COLORS)];b+=T(31,y,name,16,'#fff',font=SERIF)+meter(t,220,y-13,540*pct,15,c,i)+T(867,y,label,14,'#ffff66',font=MONO,text_anchor='end')
+            y=218+i*29;c=COLORS[i%len(COLORS)];b+=T(31,y,name,16,'#fff',font=SERIF)+R(220,y-13,540,15,c,fill_opacity='.12')+meter(t,220,y-13,540*pct,15,c,i)+T(867,y,label,14,'#ffff66',font=MONO,text_anchor='end')
         b+=T(450,h-12,foot,11,'#fff',font=SERIF,text_anchor='middle')
     elif k=='matrix':
         h=max(448,140+len(rows)*28);b=R(0,0,900,h,'#020906')+P(f'M321 30V{h-30}',a,1)
@@ -598,7 +605,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(29,111+i*103,v,40,'#d1ffdf',font=MONO)+T(30,139+i*103,label.upper(),10,a,font=MONO)
         b+=T(350,48,'LANGUAGE DISTRIBUTION',11,a,font=MONO)
         for i,(name,pct,label) in enumerate(rows):
-            y=87+i*28;b+=T(351,y,name,11,'#b1d5bd',font=MONO)+meter(t,500,y-6,272*pct,3,a,i)+T(870,y,label,11,a,font=MONO,text_anchor='end')
+            y=87+i*28;b+=T(351,y,name,11,'#b1d5bd',font=MONO)+R(500,y-6,272,3,'#153723')+meter(t,500,y-6,272*pct,3,a,i)+T(870,y,label,11,a,font=MONO,text_anchor='end')
         b+=T(28,h-20,'PUBLIC / DEFAULT BRANCH HISTORY',10,a,font=MONO)
     elif k=='y2k':
         h=330+max(len(rows),1)*28;b=R(0,0,900,h,t['bg'])+R(0,0,900,21,'url(#chrome)')+H(t,29,84,'Public activity',45,ink)
