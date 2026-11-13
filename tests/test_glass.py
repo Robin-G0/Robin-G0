@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 
 from scripts import era_materials as materials
 from scripts import profile_art as art
+from scripts import glass_worlds as worlds
 from scripts.profile_themes import THEMES, variants
 from scripts.profile_stats import pending
 
@@ -49,7 +50,7 @@ class GlassTests(unittest.TestCase):
 
     def test_photographic_layers_are_embedded_once_and_seams_fade_to_zero(self):
         theme=variants(next(t for t in THEMES if t['id']=='glass'))['light']
-        root=ET.fromstring(art.scene(theme,'flight'))
+        root=ET.fromstring(art.label_card(theme))
         patterns=[node for node in root.iter(SVG+'pattern') if node.get('id','').startswith('aurora-photo-')]
         self.assertEqual(len(patterns),3)
         for pattern in patterns:
@@ -62,6 +63,36 @@ class GlassTests(unittest.TestCase):
         stops=list(gradient)
         self.assertEqual(stops[0].get('stop-opacity'),'0')
         self.assertEqual(stops[-1].get('stop-opacity'),'0')
+
+    def test_content_sections_use_distinct_generated_assets_instead_of_auroras(self):
+        data=dict(pending('Robin-G0'),status='ready',updated='2026-11-12',
+                  repositories=1,commits=2,lines_changed=3,languages={'Python':1})
+        identity=next(t for t in THEMES if t['id']=='glass')
+        for theme in variants(identity).values():
+            scenes={'flight':art.scene(theme,'flight'),'about':art.about(theme),
+                    'project':art.scene(theme,'mig'),'activity':art.activity(theme,data)}
+            seen=set();seen_sources=set()
+            for section,document in scenes.items():
+                with self.subTest(mode=theme['mode'],section=section):
+                    root=ET.fromstring(document)
+                    images=[node for node in root.iter(SVG+'image') if node.get('data-scene-asset')]
+                    assets={node.get('data-scene-asset') for node in images}
+                    self.assertEqual(assets,{worlds.WORLDS[section]['background'],worlds.WORLDS[section]['foreground']})
+                    self.assertEqual(len(images),2)
+                    self.assertFalse(seen.intersection(assets))
+                    sources={node.get('href') for node in images}
+                    self.assertFalse(seen_sources.intersection(sources))
+                    self.assertFalse(any(node.get('data-aurora-layer') for node in root.iter()))
+                    self.assertTrue(all(node.get('href').startswith('data:image/') for node in images))
+                    self.assertLess(len(document.encode('utf-8')),800_000)
+                    seen.update(assets)
+                    seen_sources.update(sources)
+                    ids={node.get('id') for node in root.iter() if node.get('id')}
+                    for node in root.iter(SVG+'use'):
+                        self.assertIn(node.get('href')[1:],ids)
+                    if section!='about':
+                        foreground=next(node for node in root.iter() if node.get('data-scene-foreground'))
+                        self.assertFalse(any(node.get('filter') for node in foreground.iter()))
 
     def test_each_language_has_a_separate_bar_at_its_true_share(self):
         identity=next(t for t in THEMES if t['id']=='glass')

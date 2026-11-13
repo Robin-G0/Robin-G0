@@ -7,6 +7,7 @@ embedded artwork, patterns and CSS animation. No remote runtime requests.
 import json
 import math
 import base64
+import re
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -129,8 +130,9 @@ def svg(t,h,title,body,css=''):
     motion+=materials.motion(t['id'])
     body=materials.copy_motion(body,t['id'])
     artwork=aero.definitions(sys.modules[__name__]) if t['id']=='aero' and 'url(#aero-meter-material)' in body else ''
-    if t['id']=='glass' and 'data-aurora-layer' in body:
-        artwork=materials.aurora_resources(embedded_asset)
+    if t['id']=='glass' and 'data-glass-section' in body:
+        section=re.search(r'data-glass-section="([a-z]+)"',body).group(1)
+        artwork=materials.scene_resources(embedded_asset,section)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="900" height="{h}" viewBox="0 0 900 {h}" role="img" aria-labelledby="title">
 <title id="title">{escape(title)}</title>
 <defs>
@@ -452,12 +454,12 @@ def scene_glass(t,kind):
         b+=T(42,57,'PROFILE',11,'#dae6ff',letter_spacing=4)+H(t,39,159,'Robin-G0',77,'#fff')
         b+=T(45,204,'Software Engineer',24,'#edf2ff')+T(46,237,'Research & development',16,'#c5d6f4')
         b+=T(46,333,'Computer vision',15,'#e5eeff')+T(46,362,'Systems · Quantum computing',15,'#e5eeff')
-        b+=materials.lens(564,40,292,359,section=section)+T(590,78,'CANADA / FRANCE',11,'#e6eeff',letter_spacing=2)
+        b+=materials.lens(564,40,292,359,section=section)+materials.glass_foreground(440,section)+T(590,78,'CANADA / FRANCE',11,'#e6eeff',letter_spacing=2)
         b+=T(594,138,'CA',38,'#fff',font='Segoe UI Light, sans-serif')+T(824,337,'FR',38,'#fff',font='Segoe UI Light, sans-serif',text_anchor='end')
         f,c=flight_path(t,'M 622 177 C 784 159 643 289 791 283','#e7fbff','jet',20);b+=f;css+=c
         b+=P('M587 362H832','#ffffff44',1)+T(590,383,'ROUND TRIP',10,'#d6e4fa',letter_spacing=3)
     else:
-        b+=materials.lens(26,26,848,388,section=section)
+        b+=materials.lens(26,26,848,388,section=section)+materials.glass_foreground(440,section)
         b+=f'<g class="spatial-device"><g transform="translate(67 94) skewY(-12)">{grid(0,0,87,"#c9ddff","#ffffff22","#ffffff09")}</g></g>'
         b+=H(t,390,143,'Motion Input Grid',44,'#fff')+T(393,185,'Body movements as input.',21,'#ecf2ff')
         b+=T(393,224,'An open-source framework for web,',15,'#cfdcf6')+T(393,248,'desktop applications and games.',15,'#cfdcf6')
@@ -629,7 +631,7 @@ def activity(t,data):
             b+=C(x+5,y-4,5,c)+T(x+20,y,name,12,ink)+T(x+365,y,label,12,mut,text_anchor='end')+R(x+20,y+9,345,3,t['soft'])+meter(t,x+20,y+9,345*pct,3,a,i)
         b+=T(48,h-40,'Filtered additions + deletions',10,mut)
     elif k=='glass':
-        h=290+math.ceil(max(len(rows),1)/2)*44;b=materials.glass_backdrop(h,section='activity')+materials.lens(17,17,866,h-34,h,section='activity');ink='#fff';mut='#d8e6fa'
+        h=290+math.ceil(max(len(rows),1)/2)*44;b=materials.glass_backdrop(h,section='activity')+materials.lens(17,17,866,h-34,h,section='activity')+materials.glass_foreground(h,'activity');ink='#fff';mut='#d8e6fa'
         b+=H(t,40,72,'Public activity',38,ink)
         for i,(v,label) in enumerate(values):
             x=41+i*286;b+=T(x,134,v,37,ink,font='Segoe UI Light, sans-serif')+T(x,164,label,12,mut)

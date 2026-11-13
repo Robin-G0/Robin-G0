@@ -1,9 +1,13 @@
 """Code-native materials and motion. No script, remote resource or SMIL needed."""
 
 import re
+try:
+    from . import glass_worlds as worlds
+except ImportError:
+    import glass_worlds as worlds
 AURORA_PERIOD=900
 AURORA_LAYERS=(('far',180,.8),('mid',130,.65),('near',90,.75))
-GLASS_SECTIONS=('identity','flight','about','project','activity')
+GLASS_SECTIONS=('identity',*worlds.WORLDS)
 
 
 def definitions(theme):
@@ -44,7 +48,7 @@ def motion(theme):
     if theme=='glass':
         selectors+=''.join(f'.aurora-{name}{{animation:aurora-current {duration}s linear -{duration*.23:g}s infinite;}}'
                            for name,duration,_ in AURORA_LAYERS)
-        selectors+='''.glass-scene-flight{transform-origin:450px 220px;animation:glass-flight-orbit 96s linear infinite}.glass-scene-about{animation:glass-about-rise 72s ease-in-out infinite}.glass-scene-project{transform-origin:450px 220px;animation:glass-project-depth 60s ease-in-out infinite}.glass-scene-activity{animation:glass-activity-glow 90s ease-in-out infinite}'''
+        selectors+=worlds.motion()
     keyframes='''
 @keyframes meter-step{0%,12%{transform:translateX(-40px)}75%,100%{transform:translateX(var(--travel))}}
 @keyframes stripe-scroll{to{transform:translateX(24px)}}
@@ -69,10 +73,6 @@ def motion(theme):
 @keyframes gel-breathe{50%{opacity:.45}}
 @keyframes bubble-rise{to{transform:translate(9px,-24px)}}
 @keyframes aurora-current{from{transform:translateX(0)}to{transform:translateX(-900px)}}
-@keyframes glass-flight-orbit{0%,100%{transform:translate(0,0) rotate(-1deg) scale(1.06)}25%{transform:translate(16px,-12px) rotate(0deg) scale(1.06)}50%{transform:translate(0,-24px) rotate(1deg) scale(1.06)}75%{transform:translate(-16px,-12px) rotate(0deg) scale(1.06)}}
-@keyframes glass-about-rise{0%,100%{transform:translateY(20px);opacity:.72}50%{transform:translateY(-38px);opacity:1}}
-@keyframes glass-project-depth{0%,100%{transform:scale(1.01) rotate(-1deg)}50%{transform:scale(1.17) rotate(1deg)}}
-@keyframes glass-activity-glow{0%,100%{opacity:.38}50%{opacity:.72}}
 '''
     names=set(re.findall(r'animation:([\w-]+)',selectors))
     frames=''.join(match.group(0) for match in re.finditer(r'@keyframes ([\w-]+)\{(?:[^{}]|\{[^{}]*\})*\}',keyframes)
@@ -80,8 +80,10 @@ def motion(theme):
     return selectors+frames+'''.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}'''
 
 
-def aurora_resources(embedded_asset):
-    """One copy of each photographic layer, shared by the field and its lens."""
+def scene_resources(embedded_asset,section='identity'):
+    """Only the chosen section's art is embedded, once, for scene and lens."""
+    if section in worlds.WORLDS:
+        return worlds.resources(embedded_asset,section)
     resources='<linearGradient id="aurora-feather"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".16" stop-color="#fff"/><stop offset=".84" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
     resources+='<mask id="aurora-tile-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="900" height="440"><rect width="900" height="440" fill="url(#aurora-feather)"/></mask>'
     for name,_,_ in AURORA_LAYERS:
@@ -95,6 +97,8 @@ def waves(height=440,section='identity'):
     """Photographic parallax with a distinct depth/light treatment per section."""
     if section not in GLASS_SECTIONS:
         raise ValueError('Unknown Glass section: '+section)
+    if section in worlds.WORLDS:
+        return worlds.field(height,section)
     body=(f'<g transform="scale(1 {height/440:.4f})" aria-hidden="true">'
           '<rect width="900" height="440" fill="url(#aurora)"/>'
           f'<g class="glass-scene-{section}" data-glass-section="{section}">')
@@ -108,12 +112,17 @@ def glass_backdrop(height=440,section='identity'):
     return f'<defs><clipPath id="glass-frame"><rect width="900" height="{height}" rx="24"/></clipPath></defs><g clip-path="url(#glass-frame)">{waves(height,section)}</g>'
 
 
+def glass_foreground(height,section):
+    return worlds.foreground(height,section)
+
+
 def lens(x,y,w,h,height=440,uid='panel',radius=24,section='identity'):
     # Text is drawn later, outside the filter. Duplicate only the backdrop.
+    wash=1 if section=='identity' else .5
     return f'''<defs><clipPath id="lens-{uid}"><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}"/></clipPath></defs>
 <g clip-path="url(#lens-{uid})" data-material="refracted-backdrop"><g filter="url(#glass-lens)">{waves(height,section)}</g></g>
 <rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}" fill="#142342" fill-opacity=".28" stroke="url(#lens-edge)" stroke-width="1.5"/>
-<rect x="{x+2}" y="{y+2}" width="{w-4}" height="{h-4}" rx="{radius-2}" fill="url(#glass)" stroke="#ffffff18"/>
+<rect x="{x+2}" y="{y+2}" width="{w-4}" height="{h-4}" rx="{radius-2}" fill="url(#glass)" fill-opacity="{wash}" stroke="#ffffff18"/>
 '''
 
 
