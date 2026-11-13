@@ -634,7 +634,11 @@ def activity(t,data):
         b+=R(42,190,815,7,t['border'],4);x=42
         for i,(_,pct,_) in enumerate(rows):b+=meter(t,x,190,815*pct,7,COLORS[i%6],i,3);x+=815*pct
         for i,(name,pct,label) in enumerate(rows):
-            x=42+(i%2)*422;y=237+(i//2)*44;b+=C(x+4,y-4,4,COLORS[i%6])+T(x+19,y,name,12,ink)+T(x+372,y,label,12,mut,text_anchor='end')+P(f'M{x+19} {y+12}H{x+372}',t['border'],.5)
+            x=42+(i%2)*422;y=237+(i//2)*44;c=COLORS[i%6]
+            b+=f'<g data-language-row="{escape(name)}">'+C(x+4,y-4,4,c)+T(x+19,y,name,12,ink)
+            b+=R(x+142,y-8,168,7,'#0b173d',4,fill_opacity='.55')
+            b+=meter(t,x+142,y-8,168*pct,7,c,len(rows)+i,3)
+            b+=T(x+372,y,label,12,'#edf5ff',text_anchor='end')+'</g>'
         b+=T(42,h-37,'Updated '+updated+' UTC · owned public repositories',10,mut)
     else:
         h=max(440,155+len(rows)*29);b=R(0,0,900,h,t['bg'])+R(0,0,900,h,'#b4a98c',opacity='.05',filter='url(#paper)')
