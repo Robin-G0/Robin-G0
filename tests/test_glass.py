@@ -10,6 +10,26 @@ SVG='{http://www.w3.org/2000/svg}'
 
 
 class GlassTests(unittest.TestCase):
+    def test_each_section_has_its_own_motion_and_matching_refraction(self):
+        identity=next(t for t in THEMES if t['id']=='glass')
+        data=dict(pending('Robin-G0'),status='ready',updated='2026-11-12',
+                  repositories=1,commits=2,lines_changed=3,languages={'Python':1})
+        for theme in variants(identity).values():
+            scenes={'identity':art.label_card(theme),'flight':art.scene(theme,'flight'),
+                    'about':art.about(theme),'project':art.scene(theme,'mig'),
+                    'activity':art.activity(theme,data)}
+            treatments=set()
+            for section,document in scenes.items():
+                root=ET.fromstring(document)
+                fields=[node for node in root.iter() if node.get('data-glass-section')]
+                self.assertEqual(len(fields),2)
+                self.assertEqual({node.get('data-glass-section') for node in fields},{section})
+                self.assertEqual(fields[0].get('class'),fields[1].get('class'))
+                self.assertFalse(any(list(node.iter(SVG+'text')) for node in fields))
+                treatments.add(fields[0].get('class'))
+                self.assertIn('animation:none!important',root.find(SVG+'style').text)
+            self.assertEqual(len(treatments),len(scenes))
+
     def test_aurora_layers_are_slow_distinct_and_travel_in_one_direction(self):
         durations=[duration for _,duration,_ in materials.AURORA_LAYERS]
         self.assertEqual(len(set(durations)),3)
