@@ -135,4 +135,5 @@ def label_card(t,selected,preview,number,a):
     b+=heading(a,t,25,86,'Frutiger Aero',43)
     b+=copy(a,30,121,detail,10,MUTED)
     b+=copy(a,863,123,t['era'],10,'#fff',text_anchor='end')
-    return a.svg(t,h,'Frutiger Aero / '+head,b+'</g>')
+    illustration,motion=a.preview_motion.illustration(t,a)
+    return a.svg(t,h,'Frutiger Aero / '+head,b+illustration+'</g>',motion)

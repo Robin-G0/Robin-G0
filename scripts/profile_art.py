@@ -15,9 +15,11 @@ from xml.sax.saxutils import escape
 try:
     from . import era_materials as materials
     from . import aero_compositions as aero
+    from . import preview_motion
 except ImportError:
     import era_materials as materials
     import aero_compositions as aero
+    import preview_motion
 
 TYPE = json.loads(Path(__file__).with_name('typefaces.json').read_text(encoding='utf-8'))
 MONO = "'Lucida Console',Consolas,monospace"
@@ -688,4 +690,5 @@ def label_card(t,selected=None,preview=False,number=None):
         b=materials.glass_backdrop(h)+materials.lens(10,10,880,110,h,radius=16)+T(31,33,head,10,'#dae6ff',letter_spacing=2)+H(t,29,82,name,40,'#fff')+T(32,109,detail,10,'#dae6ff')+T(869,106,era,12,'#dae6ff',text_anchor='end')
     else:
         b=R(0,0,900,h,t['bg'])+P('M24 17H876M24 120H876',ink,1)+T(25,36,head,9,a,font=MONO,letter_spacing=2)+H(t,23,85,name,43,ink)+T(25,109,detail,10,t['muted'],font=SERIF,font_style='italic')+T(873,107,era,12,t['muted'],font=SERIF,text_anchor='end')
-    return svg(t,h,f"{'Explore' if row else 'Visual identity'}: {name} — {era}",b,css)
+    illustration,motion=preview_motion.illustration(t,sys.modules[__name__])
+    return svg(t,h,f"{'Explore' if row else 'Visual identity'}: {name} — {era}",b+illustration,css+motion)

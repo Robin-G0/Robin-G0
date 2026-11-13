@@ -18,7 +18,8 @@ class EraMaterialsTests(unittest.TestCase):
         for identity in THEMES:
             for theme in variants(identity).values():
                 for document in (art.scene(theme,'flight'), art.scene(theme,'mig'),
-                                 art.about(theme), art.activity(theme,data)):
+                                 art.about(theme), art.activity(theme,data),
+                                 art.label_card(theme),art.label_card(theme,number=1)):
                     with self.subTest(theme=theme['id'], mode=theme['mode']):
                         root=ET.fromstring(document)
                         ids=[node.get('id') for node in root.iter() if node.get('id')]
