@@ -10,31 +10,38 @@ SVG='{http://www.w3.org/2000/svg}'
 
 
 class GlassTests(unittest.TestCase):
-    def test_content_aurora_flows_faster_than_the_banner(self):
-        banner=ET.fromstring(materials.waves(130))
-        content=ET.fromstring(materials.waves(440))
-        def durations(node):
-            return {key:float(value.rstrip('s')) for key,value in
-                    (item.split(':') for item in node.get('style').split(';'))}
-        for key,duration in durations(banner).items():
-            self.assertLess(durations(content)[key],duration)
-        self.assertIn('var(--mint-duration,8s)',materials.motion('glass'))
+    def test_aurora_layers_are_slow_distinct_and_travel_in_one_direction(self):
+        durations=[duration for _,duration,_ in materials.AURORA_LAYERS]
+        self.assertEqual(len(set(durations)),3)
+        self.assertGreaterEqual(min(durations),90)
+        css=materials.motion('glass')
+        self.assertNotIn('reverse',css)
+        self.assertNotIn('alternate',css)
+        self.assertIn(f'translateX(-{materials.AURORA_PERIOD}px)',css)
+        for height in (130,440,686):
+            field=ET.fromstring('<svg xmlns="http://www.w3.org/2000/svg">'+materials.waves(height)+'</svg>')
+            layers=[node for node in field.iter() if node.get('data-aurora-layer')]
+            self.assertEqual(len(layers),3)
+            self.assertFalse(list(field.iter(SVG+'path')))
+            for node in layers:
+                tile=node.find(SVG+'rect')
+                self.assertGreaterEqual(float(tile.get('width')),3*materials.AURORA_PERIOD)
 
-    def test_aurora_height_thickness_and_velocity_match_at_loop_seam(self):
-        for base,amplitude,phase in ((190,70,.5),(145,62,0),(265,45,2.2)):
-            for x in (-100,0,100,450,899):
-                left=materials.aurora_profile(x,base,amplitude,phase)
-                right=materials.aurora_profile(x+materials.AURORA_PERIOD,base,amplitude,phase)
-                for a,b in zip(left,right):self.assertAlmostEqual(a,b,places=9)
-                step=.001
-                for position in (x,x+materials.AURORA_PERIOD):
-                    before=materials.aurora_profile(position-step,base,amplitude,phase)
-                    after=materials.aurora_profile(position+step,base,amplitude,phase)
-                    slope=tuple((b-a)/(2*step) for a,b in zip(before,after))
-                    if position==x:first_slope=slope
-                    else:
-                        for a,b in zip(first_slope,slope):self.assertAlmostEqual(a,b,places=7)
-        self.assertIn(f'translateX(-{materials.AURORA_PERIOD}px)',materials.motion('glass'))
+    def test_photographic_layers_are_embedded_once_and_seams_fade_to_zero(self):
+        theme=variants(next(t for t in THEMES if t['id']=='glass'))['light']
+        root=ET.fromstring(art.scene(theme,'flight'))
+        patterns=[node for node in root.iter(SVG+'pattern') if node.get('id','').startswith('aurora-photo-')]
+        self.assertEqual(len(patterns),3)
+        for pattern in patterns:
+            images=list(pattern.iter(SVG+'image'))
+            self.assertEqual(len(images),1)
+            self.assertTrue(images[0].get('href').startswith('data:image/png;base64,'))
+            self.assertEqual(float(pattern.get('width')),materials.AURORA_PERIOD)
+            self.assertEqual(images[0].get('mask'),'url(#aurora-tile-mask)')
+        gradient=next(node for node in root.iter(SVG+'linearGradient') if node.get('id')=='aurora-feather')
+        stops=list(gradient)
+        self.assertEqual(stops[0].get('stop-opacity'),'0')
+        self.assertEqual(stops[-1].get('stop-opacity'),'0')
 
     def test_each_language_has_a_separate_bar_at_its_true_share(self):
         identity=next(t for t in THEMES if t['id']=='glass')

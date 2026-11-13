@@ -129,6 +129,8 @@ def svg(t,h,title,body,css=''):
     motion+=materials.motion(t['id'])
     body=materials.copy_motion(body,t['id'])
     artwork=aero.definitions(sys.modules[__name__]) if t['id']=='aero' and 'url(#aero-meter-material)' in body else ''
+    if t['id']=='glass' and 'data-aurora-layer' in body:
+        artwork=materials.aurora_resources(embedded_asset)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="900" height="{h}" viewBox="0 0 900 {h}" role="img" aria-labelledby="title">
 <title id="title">{escape(title)}</title>
 <defs>

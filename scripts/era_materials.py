@@ -1,9 +1,8 @@
 """Code-native materials and motion. No script, remote resource or SMIL needed."""
 
 import re
-import math
-
 AURORA_PERIOD=900
+AURORA_LAYERS=(('far',180,.8),('mid',130,.65),('near',90,.75))
 
 
 def definitions(theme):
@@ -14,18 +13,12 @@ def definitions(theme):
 <radialGradient id="bubble" cx=".28" cy=".2" r=".8"><stop stop-color="#fff" stop-opacity=".8"/><stop offset=".22" stop-color="#d6fbff" stop-opacity=".08"/><stop offset=".73" stop-color="#46a8dd" stop-opacity=".04"/><stop offset=".94" stop-color="#ddffff" stop-opacity=".48"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></radialGradient>
 <pattern id="candy" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-6 24L18 0M6 24L30 0" stroke="#b9edff" stroke-width="5" opacity=".45"/></pattern>
 <pattern id="hatch" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-12 24L12 0M0 24L24 0M12 24L36 0" stroke="#100b3b" stroke-width="5" opacity=".48"/></pattern>
-<linearGradient id="wave-mint"><stop stop-color="#40d9c0" stop-opacity="0"/><stop offset=".5" stop-color="#8cece0"/><stop offset="1" stop-color="#53a6f5" stop-opacity=".12"/></linearGradient>
-<linearGradient id="wave-rose"><stop stop-color="#9a7bec" stop-opacity=".1"/><stop offset=".5" stop-color="#eea6de"/><stop offset="1" stop-color="#b3baff" stop-opacity=".1"/></linearGradient>
-<linearGradient id="curtain-mint" gradientUnits="userSpaceOnUse" x1="0" y1="65" x2="0" y2="360"><stop stop-color="#b6ffe2"/><stop offset=".35" stop-color="#57e9b4"/><stop offset=".72" stop-color="#4cc6ce" stop-opacity=".55"/><stop offset="1" stop-color="#697cd5" stop-opacity="0"/></linearGradient>
-<linearGradient id="curtain-violet" gradientUnits="userSpaceOnUse" x1="0" y1="70" x2="0" y2="410"><stop stop-color="#d9b9ff" stop-opacity=".85"/><stop offset=".5" stop-color="#b586eb"/><stop offset="1" stop-color="#829bf8" stop-opacity="0"/></linearGradient>
-<linearGradient id="curtain-blue" gradientUnits="userSpaceOnUse" x1="0" y1="110" x2="0" y2="440"><stop stop-color="#80d9ff" stop-opacity=".8"/><stop offset=".55" stop-color="#48b9d9" stop-opacity=".55"/><stop offset="1" stop-color="#4198bc" stop-opacity="0"/></linearGradient>
-<filter id="wave-soft" x="-30%" y="-90%" width="160%" height="280%"><feGaussianBlur stdDeviation="13"/></filter>
 <filter id="glass-lens" x="-10%" y="-15%" width="120%" height="130%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".006 .014" numOctaves="2" seed="8" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="42" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="2.5"/><feColorMatrix type="saturate" values="1.35"/></filter>
 <linearGradient id="lens-edge" x2=".8" y2="1"><stop stop-color="#fff" stop-opacity=".95"/><stop offset=".25" stop-color="#e1faff" stop-opacity=".14"/><stop offset=".65" stop-color="#91d9ff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity=".65"/></linearGradient>
 '''
     needed={'aqua':('aqua-title','aqua-toolbar','candy'),
             'aero':('aero-blue','bubble'), 'construction':('hatch',),
-            'glass':('curtain-mint','curtain-violet','curtain-blue','wave-soft','glass-lens','lens-edge')}.get(theme,())
+            'glass':('glass-lens','lens-edge')}.get(theme,())
     return ''.join(node.group(0) for node in re.finditer(r'<(linearGradient|radialGradient|pattern|filter) id="([^"]+)".*?</\1>',resources)
                    if node.group(2) in needed)
 
@@ -48,7 +41,8 @@ MOTION = {
 def motion(theme):
     selectors=MOTION.get(theme, '')
     if theme=='glass':
-        selectors+=''' .aurora-mint{animation:aurora-current var(--mint-duration,8s) linear infinite}.aurora-violet{animation:aurora-current var(--violet-duration,12s) linear -3s infinite;animation-direction:reverse}.aurora-blue{animation:aurora-current var(--blue-duration,16s) linear -5s infinite}'''
+        selectors+=''.join(f'.aurora-{name}{{animation:aurora-current {duration}s linear -{duration*.23:g}s infinite;}}'
+                           for name,duration,_ in AURORA_LAYERS)
     keyframes='''
 @keyframes meter-step{0%,12%{transform:translateX(-40px)}75%,100%{transform:translateX(var(--travel))}}
 @keyframes stripe-scroll{to{transform:translateX(24px)}}
@@ -80,37 +74,25 @@ def motion(theme):
     return selectors+frames+'''.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}'''
 
 
-def aurora_profile(x,base,amplitude,phase):
-    """Periodic height and thickness, including matching slopes at the seam."""
-    angle=2*math.pi*x/AURORA_PERIOD+phase
-    crest=base+amplitude*math.sin(angle)+18*math.sin(2*angle+.6)
-    depth=78+24*math.sin(angle+.9)+12*math.sin(3*angle)
-    return crest,depth
-
-
-def aurora_curtain(base,amplitude,phase,color,klass):
-    # Four periods keep the blur/displacement away from either moving edge.
-    points=[(x,*aurora_profile(x,base,amplitude,phase)) for x in range(-AURORA_PERIOD,3*AURORA_PERIOD+1,15)]
-    top=' '.join(f'{x},{y:.3f}' for x,y,_ in points)
-    bottom=' '.join(f'{x},{y+depth:.3f}' for x,y,depth in reversed(points))
-    body=f'<path d="M{top} L{bottom}Z" fill="url(#{color})" opacity=".58" filter="url(#wave-soft)"/>'
-    body+=f'<path d="M{top}" fill="none" stroke="url(#{color})" stroke-width="2" opacity=".6"/>'
-    folds=[]
-    for x in range(-AURORA_PERIOD,3*AURORA_PERIOD+1,12):
-        y,depth=aurora_profile(x,base,amplitude,phase)
-        folds.append(f'M{x},{y:.3f}q-9,{depth*.45:.3f} 0,{depth:.3f}')
-    body+=f'<path d="{" ".join(folds)}" fill="none" stroke="url(#{color})" stroke-width="1.2" opacity=".16"/>'
-    return f'<g class="{klass}" data-aurora-period="{AURORA_PERIOD}">{body}</g>'
+def aurora_resources(embedded_asset):
+    """One copy of each photographic layer, shared by the field and its lens."""
+    resources='<linearGradient id="aurora-feather"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".16" stop-color="#fff"/><stop offset=".84" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+    resources+='<mask id="aurora-tile-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="900" height="440"><rect width="900" height="440" fill="url(#aurora-feather)"/></mask>'
+    for name,_,_ in AURORA_LAYERS:
+        uri=embedded_asset('art/glass-aurora-'+name+'-v1.png')
+        resources+=(f'<pattern id="aurora-photo-{name}" patternUnits="userSpaceOnUse" width="{AURORA_PERIOD}" height="440">'
+                    f'<image width="900" height="440" href="{uri}" preserveAspectRatio="none" mask="url(#aurora-tile-mask)"/></pattern>')
+    return resources
 
 
 def waves(height=440):
-    """A flowing periodic light field, reused through the refracting lens."""
-    pace='--mint-duration:24s;--violet-duration:36s;--blue-duration:48s' if height<=144 else '--mint-duration:8s;--violet-duration:12s;--blue-duration:16s'
-    return (f'<g transform="scale(1 {height/440:.4f})" style="{pace}" aria-hidden="true">'
-            '<rect width="900" height="440" fill="url(#aurora)"/>'
-            +aurora_curtain(190,70,.5,'curtain-violet','aurora-violet')
-            +aurora_curtain(145,62,0,'curtain-mint','aurora-mint')
-            +aurora_curtain(265,45,2.2,'curtain-blue','aurora-blue')+'</g>')
+    """Same-direction photographic parallax; exact repeats avoid a reset flash."""
+    body=(f'<g transform="scale(1 {height/440:.4f})" aria-hidden="true">'
+          '<rect width="900" height="440" fill="url(#aurora)"/>')
+    for name,_,opacity in AURORA_LAYERS:
+        body+=(f'<g class="aurora-{name}" data-aurora-layer="{name}">'
+               f'<rect x="-900" y="0" width="3600" height="440" fill="url(#aurora-photo-{name})" opacity="{opacity}"/></g>')
+    return body+'</g>'
 
 
 def glass_backdrop(height=440):
