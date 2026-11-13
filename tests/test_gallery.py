@@ -19,7 +19,6 @@ TEMPLATE = '''<picture>
 <img src="assets/mig-dark.svg">
 <img src="assets/stats-light.svg">
 [View the data](assets/stats.json)
-[Counting rules](docs/profile-design.md#what-the-statistics-mean)
 '''
 
 
@@ -57,7 +56,7 @@ class GalleryTests(unittest.TestCase):
 
     def test_all_relative_links_and_images_resolve(self):
         outputs = gallery_outputs(TEMPLATE, self.data, self.day)
-        known = set(outputs) | {'README.md', 'assets/stats.json', 'docs/profile-design.md'}
+        known = set(outputs) | {'README.md', 'assets/stats.json'}
         for path, content in outputs.items():
             if not path.endswith('.md'):
                 continue

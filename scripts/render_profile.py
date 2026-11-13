@@ -29,7 +29,7 @@ SNAPSHOT = ASSETS / "stats.json"
 THEME_STATE = ASSETS / "theme.json"
 BUTTONS = {'source':'Project source', 'demo':'Interactive demo', 'studio':'Open Studio',
            'website':'Website', 'repos':'Repositories', 'themes':'All themes',
-           'data':'Statistics data', 'rules':'Counting rules', 'previous':'Previous theme',
+           'data':'Statistics data', 'previous':'Previous theme',
            'next':'Next theme', 'daily':'Daily profile'}
 
 
@@ -123,9 +123,7 @@ def gallery_outputs(readme, data, selected, identities=None):
             linked_button('next',f'../{following}/README.md')])+'\n</p>')
         # The same profile content is reused; only image paths and navigation vary.
         preview = preview.replace('(assets/stats.json)', '(../../assets/stats.json)')
-        preview = preview.replace('(docs/', '(../../docs/')
         preview = preview.replace('href="assets/stats.json"', 'href="../../assets/stats.json"')
-        preview = preview.replace('href="docs/', 'href="../../docs/')
         preview = preview.replace('alt="Current visual theme, era and selection date"',
                                   'alt="Fixed visual theme preview, era and update date"')
         preview = themed_readme(preview, identity, selected, preview=True, revision=asset_revision(assets))
