@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 import xml.etree.ElementTree as ET
 
 from scripts import era_materials as materials
@@ -84,7 +85,7 @@ class GlassTests(unittest.TestCase):
                     self.assertFalse(seen_sources.intersection(sources))
                     self.assertFalse(any(node.get('data-aurora-layer') for node in root.iter()))
                     self.assertTrue(all(node.get('href').startswith('data:image/') for node in images))
-                    self.assertLess(len(document.encode('utf-8')),800_000)
+                    self.assertLess(len(document.encode('utf-8')),2_500_000 if section=='about' else 800_000)
                     seen.update(assets)
                     seen_sources.update(sources)
                     ids={node.get('id') for node in root.iter() if node.get('id')}
@@ -93,6 +94,45 @@ class GlassTests(unittest.TestCase):
                     if section!='about':
                         foreground=next(node for node in root.iter() if node.get('data-scene-foreground'))
                         self.assertFalse(any(node.get('filter') for node in foreground.iter()))
+
+    def test_water_loop_is_embedded_once_with_a_static_reduced_motion_image(self):
+        theme=variants(next(t for t in THEMES if t['id']=='glass'))['light']
+        document=art.about(theme);root=ET.fromstring(document)
+        loops=[node for node in root.iter(SVG+'image') if node.get('data-water-loop')]
+        self.assertEqual(len(loops),1)
+        self.assertTrue(loops[0].get('href').startswith('data:image/gif;base64,'))
+        self.assertEqual(document.count('data:image/gif;base64,'),1)
+        self.assertTrue(any(node.get('data-scene-asset')=='glass-ocean-water-v1.jpg' for node in root.iter()))
+        css=root.find(SVG+'style').text
+        self.assertIn('.water-moving{display:none!important}',css)
+        self.assertIn('.water-still{display:inline!important}',css)
+
+    def test_water_gif_is_a_complete_twelve_second_infinite_loop(self):
+        data=(Path(__file__).resolve().parents[1]/'assets/art/glass-ocean-water-loop-v1.gif').read_bytes()
+        self.assertEqual(data[:6],b'GIF89a')
+        self.assertEqual((int.from_bytes(data[6:8],'little'),int.from_bytes(data[8:10],'little')),(600,300))
+        self.assertIn(b'NETSCAPE2.0\x03\x01\x00\x00',data)
+        self.assertLess(len(data),2_000_000)
+        offset=13+(3*(2**((data[10]&7)+1)) if data[10]&128 else 0)
+        frames=[];duration=0
+        while data[offset]!=0x3b:
+            marker=data[offset]
+            if marker==0x21:
+                kind=data[offset+1];offset+=2
+                if kind==0xf9:duration+=int.from_bytes(data[offset+2:offset+4],'little')
+            else:
+                self.assertEqual(marker,0x2c)
+                packed=data[offset+9];offset+=10
+                if packed&128:offset+=3*(2**((packed&7)+1))
+                offset+=1
+                start=offset
+            while data[offset]:offset+=1+data[offset]
+            offset+=1
+            if marker==0x2c:frames.append(data[start:offset])
+        self.assertEqual(offset,len(data)-1)
+        self.assertEqual(len(frames),144)
+        self.assertEqual(duration,1200)
+        self.assertGreater(len(set(frames)),100)
 
     def test_each_language_has_a_separate_bar_at_its_true_share(self):
         identity=next(t for t in THEMES if t['id']=='glass')

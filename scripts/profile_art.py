@@ -29,7 +29,7 @@ ASSET_ROOT = Path(__file__).resolve().parents[1] / 'assets'
 @lru_cache(maxsize=None)
 def embedded_asset(relative):
     path = ASSET_ROOT / relative
-    mime = 'image/jpeg' if path.suffix == '.jpg' else 'image/png' if path.suffix == '.png' else 'image/svg+xml'
+    mime = 'image/jpeg' if path.suffix == '.jpg' else 'image/png' if path.suffix == '.png' else 'image/gif' if path.suffix == '.gif' else 'image/svg+xml'
     return 'data:' + mime + ';base64,' + base64.b64encode(path.read_bytes()).decode('ascii')
 
 

@@ -17,11 +17,18 @@ def resources(embedded_asset,section):
     background=embedded_asset('art/'+scene['background'])
     foreground=embedded_asset('art/'+scene['foreground'])
     x,y,w,h=scene['placement']
+    still=(f'<use href="#world-background-image"/><use href="#world-background-image" transform="translate(1800 0) scale(-1 1)"/>')
+    water=''
+    if section=='about':
+        animated=embedded_asset('art/glass-ocean-water-loop-v1.gif')
+        water=f'<image id="water-surface-loop" data-water-loop="true" width="900" height="440" href="{animated}" preserveAspectRatio="xMidYMid slice"/>'
+        still=('<g class="water-still">'+still+'</g><g class="water-moving">'
+               '<use href="#water-surface-loop"/><use href="#water-surface-loop" transform="translate(1800 0) scale(-1 1)"/></g>')
     # Mirrored neighboring tiles meet at identical edge pixels. Only one encoded
     # copy of each image is embedded; all scenery and refraction share the defs.
     return (f'<image id="world-background-image" data-scene-asset="{scene["background"]}" width="900" height="440" href="{background}" preserveAspectRatio="xMidYMid slice"/>'
-            '<pattern id="world-panorama" patternUnits="userSpaceOnUse" width="1800" height="440">'
-            '<use href="#world-background-image"/><use href="#world-background-image" transform="translate(1800 0) scale(-1 1)"/></pattern>'
+            +water+'<pattern id="world-panorama" patternUnits="userSpaceOnUse" width="1800" height="440">'
+            +still+'</pattern>'
             f'<image id="world-foreground-image" data-scene-asset="{scene["foreground"]}" x="{x}" y="{y}" width="{w}" height="{h}" href="{foreground}" preserveAspectRatio="xMidYMid meet"/>')
 
 
@@ -31,6 +38,8 @@ def motion():
         selectors+=(f'.world-{section}-background{{animation:world-background {scene["background_seconds"]}s linear infinite;}}'
                     f'.world-{section}-foreground{{animation:world-{scene["motion"]} {scene["foreground_seconds"]}s linear -{scene["foreground_seconds"]*.23:g}s infinite;}}')
     return selectors+'''
+.water-still{display:none}.water-moving{display:inline}
+@media(prefers-reduced-motion:reduce){.water-still{display:inline!important}.water-moving{display:none!important}}
 @keyframes world-background{from{transform:translateX(0)}to{transform:translateX(-1800px)}}
 @keyframes world-orbital{0%{transform:translate(50px,0);opacity:0}12%,88%{opacity:1}100%{transform:translate(-50px,0);opacity:0}}
 @keyframes world-caustics{0%{transform:translate(80px,9px);opacity:0}18%{opacity:.65}75%{opacity:.45}100%{transform:translate(-80px,-9px);opacity:0}}
