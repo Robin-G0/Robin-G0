@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="64" viewBox="0 0 280 64" role="img" aria-labelledby="title">
+<title id="title">Statistics data</title>
+<defs>
+<filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
+<filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
+<linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<linearGradient id="aero-shade" x2="1" y2="1"><stop stop-color="#0c3456" stop-opacity=".62"/><stop offset=".75" stop-color="#0c3456" stop-opacity=".08"/></linearGradient>
+<filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+<linearGradient id="gel" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#99d6ff"/><stop offset=".51" stop-color="#348bd4"/><stop offset="1" stop-color="#0f55ad"/></linearGradient>
+<linearGradient id="chrome" x2="0" y2="1"><stop stop-color="#fafcff"/><stop offset=".42" stop-color="#c6d0e8"/><stop offset=".49" stop-color="#fff"/><stop offset=".51" stop-color="#6e7c9b"/><stop offset="1" stop-color="#e6edfb"/></linearGradient>
+<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#2298da"/><stop offset="1" stop-color="#d0f4fc"/></linearGradient>
+<radialGradient id="ocean" cx=".3" cy=".25" r=".8"><stop stop-color="#8fefff"/><stop offset=".55" stop-color="#158acb"/><stop offset="1" stop-color="#074b89"/></radialGradient>
+<linearGradient id="aurora" x2="1" y2="1"><stop stop-color="#172254"/><stop offset=".5" stop-color="#5b579d"/><stop offset="1" stop-color="#21868f"/></linearGradient>
+<linearGradient id="glass" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity=".035"/></linearGradient>
+<pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 1H4" stroke="#000" opacity=".18"/></pattern>
+<pattern id="pinstripe" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0H4" stroke="#5946b2" opacity=".09"/></pattern>
+<pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#d5d5e8" opacity=".55"/></pattern>
+<pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
+</defs>
+<style>text{font-family:Arial, sans-serif;}svg{color:#25263d;}.mono{font-family:'Lucida Console',Consolas,monospace;}
+.stat-fill{transform-box:fill-box;transform-origin:left;animation:download-fill 1.4s ease-out backwards;}
+.stat-sheen{animation:download-shine var(--duration,5s) ease-in-out infinite;}
+@keyframes download-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes download-shine{0%,12%{transform:translateX(0)}68%,100%{transform:translateX(var(--travel))}}
+ .ink-ripple{transform-box:fill-box;transform-origin:center;animation:ink 4s ease-out infinite;}@keyframes ink{0%{transform:scale(.5);opacity:.6}75%,100%{transform:scale(1.6);opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
+</style><rect x="12" y="12" width="256" height="38" rx="4" fill="#5946b2" stroke="none" filter="url(#shadow)"/><text x="140.0" y="37" font-size="12" fill="#faf9ff"  text-anchor="middle" font-weight="bold" letter-spacing="1">STATISTICS DATA</text></svg>

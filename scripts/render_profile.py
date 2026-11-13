@@ -27,6 +27,10 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
 SNAPSHOT = ASSETS / "stats.json"
 THEME_STATE = ASSETS / "theme.json"
+BUTTONS = {'source':'Project source', 'demo':'Interactive demo', 'studio':'Open Studio',
+           'website':'Website', 'repos':'Repositories', 'themes':'All themes',
+           'data':'Statistics data', 'rules':'Counting rules', 'previous':'Previous theme',
+           'next':'Next theme', 'daily':'Daily profile'}
 
 
 def flight(t):
@@ -48,8 +52,8 @@ def theme_banner(t, selected, preview=False):
 def themed_readme(readme, theme, selected, preview=False, revision=None):
     """A Markdown label stays readable without loading the decorative banner."""
     block = (f"<!-- current-theme:start -->\n"
-             f"<sub>{'Preview theme' if preview else 'Current theme'}: <strong>{escape(theme['name'])}</strong> · {escape(theme['era'])} · "
-             f"{'Updated' if preview else 'Selected'} {selected.isoformat()} (UTC)</sub>\n"
+             f"<!-- {'Preview theme' if preview else 'Current theme'}: {escape(theme['name'])} / {escape(theme['era'])} / "
+             f"{'Updated' if preview else 'Selected'} {selected.isoformat()} UTC -->\n"
              f"<!-- current-theme:end -->")
     pattern = r'<!-- current-theme:start -->.*?<!-- current-theme:end -->'
     if re.search(pattern, readme, flags=re.S):
@@ -60,17 +64,16 @@ def themed_readme(readme, theme, selected, preview=False, revision=None):
     version = f"{selected.isoformat()}-{theme['id']}"
     if revision:
         version += '-' + revision
-    return re.sub(r'assets/((?:theme|flight|mig|stats|button-(?:source|demo|studio))-(?:light|dark)\.svg)(?:\?v=[^"\s]+)?',
-                  lambda m: f'assets/{m[1]}?v={version}', readme)
+    return re.sub(r'assets/((?:theme|flight|about|mig|stats|button-[a-z]+)-(?:light|dark)\.svg)(?:\?v=[^"\s]+)?',
+                  lambda m: f'assets/{m[1]}?v={version}', readme).replace('\u2014',' / ').replace('\u2013','-')
 
 
 def theme_assets(identity, data, selected, preview=False):
     rendered = {}
     for mode, theme in variants(identity).items():
-        cards = dict(theme=theme_banner(theme, selected, preview), flight=flight(theme),
+        cards = dict(theme=theme_banner(theme, selected, preview), flight=flight(theme), about=art.about(theme),
                      mig=mig(theme), stats=stats(theme, data))
-        cards.update({f'button-{key}': art.action_button(theme,label)
-                      for key,label in [('source','Project source'),('demo','Interactive demo'),('studio','Open Studio')]})
+        cards.update({f'button-{key}': art.action_button(theme,label) for key,label in BUTTONS.items()})
         rendered.update({f'{kind}-{mode}.svg': svg for kind, svg in cards.items()})
     return rendered
 
@@ -85,7 +88,16 @@ def gallery_navigation(readme, links):
     if re.search(pattern, readme, flags=re.S):
         return re.sub(pattern, lambda _: block, readme, flags=re.S)
     marker = '<!-- current-theme:end -->'
-    return readme.replace(marker, marker + '\n\n' + block, 1)
+    if marker in readme:
+        return readme.replace(marker, marker + '\n\n' + block, 1)
+    return block + '\n\n' + readme
+
+
+def linked_button(key,url,width=220):
+    return (f'<a href="{url}"><picture>'
+            f'<source media="(prefers-color-scheme: dark)" srcset="assets/button-{key}-dark.svg">'
+            f'<img src="assets/button-{key}-light.svg" alt="{BUTTONS[key]}" width="{width}">'
+            '</picture></a>')
 
 
 def theme_row(t, number):
@@ -105,15 +117,18 @@ def gallery_outputs(readme, data, selected, identities=None):
         base = f'themes/{key}'
         previous, following = ids[(i-1) % len(ids)], ids[(i+1) % len(ids)]
         assets = theme_assets(identity, data, selected, preview=True)
-        preview = themed_readme(readme, identity, selected, preview=True, revision=asset_revision(assets))
-        preview = gallery_navigation(preview,
-            '[← All themes](../README.md) · [Daily profile](../../README.md) · '
-            f'[← Previous](../{previous}/README.md) · [Next →](../{following}/README.md)')
+        preview = gallery_navigation(readme, '<p>\n'+'\n'.join([
+            linked_button('themes','../README.md'),linked_button('daily','../../README.md'),
+            linked_button('previous',f'../{previous}/README.md'),
+            linked_button('next',f'../{following}/README.md')])+'\n</p>')
         # The same profile content is reused; only image paths and navigation vary.
         preview = preview.replace('(assets/stats.json)', '(../../assets/stats.json)')
         preview = preview.replace('(docs/', '(../../docs/')
+        preview = preview.replace('href="assets/stats.json"', 'href="../../assets/stats.json"')
+        preview = preview.replace('href="docs/', 'href="../../docs/')
         preview = preview.replace('alt="Current visual theme, era and selection date"',
                                   'alt="Fixed visual theme preview, era and update date"')
+        preview = themed_readme(preview, identity, selected, preview=True, revision=asset_revision(assets))
         outputs[f'{base}/README.md'] = preview
         for mode, theme in variants(identity).items():
             assets[f'row-{mode}.svg'] = theme_row(theme, i + 1)
@@ -123,8 +138,7 @@ def gallery_outputs(readme, data, selected, identities=None):
 <a href="{key}/README.md"><picture>
   <source media="(prefers-color-scheme: dark)" srcset="{key}/assets/row-dark.svg">
   <img src="{key}/assets/row-light.svg" alt="{name} — {escape(identity['era'])}. Open this theme." width="900">
-</picture></a><br>
-<a href="{key}/README.md">{name}</a>
+</picture></a>
 </td></tr>''')
     outputs['themes/README.md'] = (
         '# Visual eras\n\n[← Daily profile](../README.md)\n\n'
@@ -177,13 +191,17 @@ def main():
                  palette={mode: identity[mode] for mode in ('light', 'dark')})
     rendered['theme.json'] = json.dumps(state, indent=2, ensure_ascii=False) + '\n'
     readme_path = ROOT / 'README.md'
-    readme = themed_readme(readme_path.read_text(encoding='utf-8'), identity, selected,
+    readme = gallery_navigation(readme_path.read_text(encoding='utf-8'), '<p>'+linked_button('themes','themes/README.md')+'</p>')
+    readme = themed_readme(readme, identity, selected,
                            revision=asset_revision(rendered))
-    readme = gallery_navigation(readme, '[Explore all visual themes →](themes/README.md)')
     outputs = {f'assets/{filename}': content for filename, content in rendered.items()}
     outputs.update(gallery_outputs(readme, data, selected))
     outputs['README.md'] = readme
     outputs['assets/stats.json'] = json.dumps(data, indent=2) + '\n'
+    outputs = {name: content.replace('\u2014',' / ').replace('\u2013','-')
+               if name.endswith(('.md','.svg')) else content for name,content in outputs.items()}
+    outputs = {name: content.rstrip()+'\n' if name.endswith('.md') else content
+               for name,content in outputs.items()}
     validate_outputs(outputs)
     # Finish collection and rendering before changing any existing files.
     for filename, content in outputs.items():

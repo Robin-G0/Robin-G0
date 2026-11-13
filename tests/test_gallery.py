@@ -37,11 +37,11 @@ class GalleryTests(unittest.TestCase):
         for theme in THEMES:
             key = theme['id']
             readme = outputs[f'themes/{key}/README.md']
-            self.assertIn(f'Preview theme: <strong>{theme["name"]}</strong>', readme)
+            self.assertIn(f'Preview theme: {theme["name"]}', readme)
             self.assertNotIn('Current theme:', readme)
             self.assertIn(f'?v=2026-11-12-{key}', readme)
-            self.assertIn('(../README.md)', readme)
-            self.assertIn('(../../README.md)', readme)
+            self.assertIn('href="../README.md"', readme)
+            self.assertIn('href="../../README.md"', readme)
             self.assertIn('(../../assets/stats.json)', readme)
             self.assertIn(f'href="{key}/README.md"', index)
             for mode in ('light', 'dark'):

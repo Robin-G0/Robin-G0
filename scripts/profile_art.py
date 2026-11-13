@@ -1,11 +1,13 @@
 """Eleven art directions. Shared facts, independently composed SVG scenes.
 
-Everything is self-contained: original vector illustrations, saved title outlines,
-patterns and CSS animation. No remote fonts, images, scripts or tracking.
+Everything is self-contained: vector illustrations, saved title outlines,
+embedded artwork, patterns and CSS animation. No remote runtime requests.
 """
 
 import json
 import math
+import base64
+from functools import lru_cache
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -13,6 +15,59 @@ TYPE = json.loads(Path(__file__).with_name('typefaces.json').read_text(encoding=
 MONO = "'Lucida Console',Consolas,monospace"
 SERIF = "Georgia,'Times New Roman',serif"
 COLORS = ['#5bb7c8','#b59bdb','#dcb368','#9dbd82','#dd8e8e','#7d9ed0']
+ASSET_ROOT = Path(__file__).resolve().parents[1] / 'assets'
+
+
+@lru_cache(maxsize=None)
+def embedded_asset(relative):
+    path = ASSET_ROOT / relative
+    mime = 'image/jpeg' if path.suffix == '.jpg' else 'image/png' if path.suffix == '.png' else 'image/svg+xml'
+    return 'data:' + mime + ';base64,' + base64.b64encode(path.read_bytes()).decode('ascii')
+
+
+def bitmap(relative,x,y,w,h,**attrs):
+    extra=' '.join(f'{k.replace("_","-")}="{v}"' for k,v in attrs.items())
+    return f'<image x="{x}" y="{y}" width="{w}" height="{h}" href="{embedded_asset(relative)}" preserveAspectRatio="xMidYMid slice" {extra}/>'
+
+
+def language_icon(name,x,y,size,metro=False):
+    names={'C++':'cplusplus','JavaScript':'javascript','Python':'python','C':'c',
+           'TypeScript':'typescript','CMake':'cmake','CSS':'css3','HTML':'html5',
+           'PowerShell':'powershell','Shell':'bash','C#':'csharp','Java':'java',
+           'Dockerfile':'docker','GLSL':'opengl','GDScript':'godot'}
+    if metro and name in ('JavaScript','TypeScript'):
+        image=R(2,2,28,28,'none',1,'#fff',stroke_width=2)+T(16,24,'JS' if name=='JavaScript' else 'TS',18,'#fff',font='Arial,sans-serif',text_anchor='middle',font_weight='bold')
+    elif metro and name in ('C','C++','C#'):
+        image=P('M16 1L29 8V24L16 31 3 24V8Z','#fff',1.5)+T(14,23,'C',21,'#fff',font='Arial,sans-serif',text_anchor='middle',font_weight='bold')
+        if name!='C':image+=T(25,18,'++' if name=='C++' else '#',8,'#fff',font='Arial,sans-serif',text_anchor='middle',font_weight='bold')
+    elif metro and name in ('HTML','CSS'):
+        image=P('M4 2H28L25 26 16 30 7 26Z','#fff',2)+T(16,23,'5' if name=='HTML' else '3',22,'#fff',text_anchor='middle',font_weight='bold')
+    elif metro and name in ('PowerShell','Shell'):
+        image=R(2,4,28,24,'none',3,'#fff',stroke_width=2)+P('M8 10L14 15 8 20M17 22H24','#fff',2)
+    elif metro and name=='CMake':
+        image=P('M16 1L31 29H1Z M16 1V19L31 29M1 29L16 19','#fff',1.5)
+    elif metro and name=='GDScript':
+        image=P('M7 6L5 1 12 4H20L27 1 25 6 30 9V26L25 30H7L2 26V9Z M7 22L12 25H20L25 22','#fff',1.7)+C(10,15,3,'none','#fff')+C(22,15,3,'none','#fff')
+    elif name in names:
+        image=f'<image x="0" y="0" width="32" height="32" href="{embedded_asset("icons/"+names[name]+".svg")}"'+(' filter="url(#white-icon)"' if metro else '')+'/>'
+    elif name=='Luau':
+        image=P('M16 1L31 16 16 31 1 16Z M16 9L9 16 16 23 23 16Z','none',fill='#fff' if metro else '#236eb7',fill_rule='evenodd')
+    else:
+        image=R(2,2,28,28,'none',2,'#fff' if metro else '#426b90',stroke_width=2)+T(16,23,'M' if name=='Makefile' else name[:2],17,'#fff' if metro else '#426b90',text_anchor='middle',font_weight='bold')
+    if not metro:
+        image=P('M-3 -5H24L36 7V36H-3Z','#777',1,'#fff')+image+P('M24 -5V7H36','#888',1,'#ddd')
+    return f'<g transform="translate({x} {y}) scale({size/32})" data-language-icon="{escape(name)}"><title>{escape(name)}</title>{image}</g>'
+
+
+def meter(t,x,y,w,h,color,index,rx=0,base=True):
+    """A sheen stays clipped to the measured value; percentages never fluctuate."""
+    uid=f'meter-{index}'
+    duration={'phosphor':5.3,'desktop95':4.2,'construction':3.7,'matrix':5.7,'y2k':4.6,'aqua':5.1,'aero':6.2,'metro':4.8,'material':5.4,'glass':7.1,'field-notes':8.2}.get(t['id'],5)
+    body=f'<defs><clipPath id="{uid}">{R(x,y,max(w,.01),h,"#fff",rx)}</clipPath></defs><g clip-path="url(#{uid})">'
+    if base:body+=R(x,y,max(w,.01),h,color,rx,**{'class':'stat-fill','style':f'animation-delay:{index*.09:.2f}s'})
+    sheen='#c8d2f4' if t['id']=='desktop95' else '#e9d5a6' if t['id']=='field-notes' else 'url(#download-glint)'
+    body+=R(x-34,y,32,h,sheen,**{'class':'stat-sheen','style':f'--travel:{w+70:.2f}px;--duration:{duration}s;animation-delay:-{index*.41:.2f}s'})
+    return body+'</g>'
 
 
 def T(x, y, label, size=15, fill='currentColor', font=None, **attrs):
@@ -52,6 +107,9 @@ def svg(t,h,title,body,css=''):
 <title id="title">{escape(title)}</title>
 <defs>
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
+<filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
+<linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<linearGradient id="aero-shade" x2="1" y2="1"><stop stop-color="#0c3456" stop-opacity=".62"/><stop offset=".75" stop-color="#0c3456" stop-opacity=".08"/></linearGradient>
 <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
 <linearGradient id="gel" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#99d6ff"/><stop offset=".51" stop-color="#348bd4"/><stop offset="1" stop-color="#0f55ad"/></linearGradient>
 <linearGradient id="chrome" x2="0" y2="1"><stop stop-color="#fafcff"/><stop offset=".42" stop-color="#c6d0e8"/><stop offset=".49" stop-color="#fff"/><stop offset=".51" stop-color="#6e7c9b"/><stop offset="1" stop-color="#e6edfb"/></linearGradient>
@@ -64,9 +122,14 @@ def svg(t,h,title,body,css=''):
 <pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="{t['border']}" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>text{{font-family:{t['font']};}}svg{{color:{t['ink']};}}.mono{{font-family:{MONO};}} {css} {motion}
+<style>text{{font-family:{t['font']};}}svg{{color:{t['ink']};}}.mono{{font-family:{MONO};}}
+.stat-fill{{transform-box:fill-box;transform-origin:left;animation:download-fill 1.4s ease-out backwards;}}
+.stat-sheen{{animation:download-shine var(--duration,5s) ease-in-out infinite;}}
+@keyframes download-fill{{from{{transform:scaleX(0)}}to{{transform:scaleX(1)}}}}
+@keyframes download-shine{{0%,12%{{transform:translateX(0)}}68%,100%{{transform:translateX(var(--travel))}}}}
+{css} {motion}
 @media(prefers-reduced-motion:reduce){{*{{animation:none!important;}}.trail{{stroke-dashoffset:0!important;}}}}
-</style>{body}</svg>'''
+</style>{body}</svg>'''.replace('\u2014',' / ').replace('\u2013','-')
 
 
 def flight_path(t,d,ink=None,style='jet',duration=18,steps=False):
@@ -173,7 +236,7 @@ def aqua_window(x,y,w,h,title):
 
 def scene_phosphor(t,kind):
     a=t['accent']; b=R(0,0,900,420,'#172016',22)+R(14,14,872,392,'#070e08',34,'#35462c')
-    b+=R(24,24,852,372,'url(#scan)',30)+T(49,54,'VT-100  /  ROBIN-G0',12,a,font=MONO)+T(849,54,'CONNECTED',10,a,font=MONO,text_anchor='end')
+    b+=R(24,24,852,372,'url(#scan)',30)+T(49,54,'VT-100 / PERSONAL TERMINAL',12,a,font=MONO)+T(849,54,'CONNECTED',10,a,font=MONO,text_anchor='end')
     css='.cursor{animation:cursor 1.1s steps(1) infinite;}@keyframes cursor{50%{opacity:0;}}'
     if kind=='flight':
         b+=T(50,98,'$ whoami',14,a,font=MONO)+H(t,50,169,'ROBIN-G0',62,a)
@@ -183,7 +246,7 @@ def scene_phosphor(t,kind):
         b+=T(67,352,'[CANADA]',14,a,font=MONO)+T(735,352,'[FRANCE]',14,a,font=MONO)+R(50,370,9,15,a,**{'class':'cursor'})
     else:
         b+=T(50,100,'$ open motion-input-grid',14,a,font=MONO)+H(t,50,153,'Motion Input Grid',35,a)
-        b+=T(50,193,'BODY LANDMARKS -> CONDITIONS -> ACTIONS',12,a,font=MONO)+T(50,228,'[x] open source   [ ] testers wanted',12,a,font=MONO)
+        b+=T(50,193,'BODY LANDMARKS -> CONDITIONS -> ACTIONS',12,a,font=MONO)+T(50,228,'[x] open source   [x] testers wanted',12,a,font=MONO)
         b+=button(t,50,273,'OPEN PROJECT',w=207)+T(50,346,'wrist.x  +0.31     wrist.y  -0.08',12,a,font=MONO)
         b+=P('M565 98V334H829 M565 216H829 M697 98V334',a,1,stroke_dasharray='2 7')
         b+=P('M595 130V269H771V178',a,2,pathLength=1,stroke_dasharray=1,**{'class':'trail'})
@@ -199,7 +262,7 @@ def scene_desktop95(t,kind):
         b+=R(30,y,35,25,'#c8d8e5',0,'#fff')+R(34,y+4,27,17,'#000080')+P(f'M47 {y+25}v7m-12 0h24','#ddd',3)+T(48,y+51,label,10,'#fff',text_anchor='middle')
     css=''
     if kind=='flight':
-        b+=window95(128,25,728,322,'Network Neighborhood — Robin-G0')
+        b+=window95(128,25,728,322,'Network Neighborhood')
         b+=T(145,75,'File     Edit     View     Help',12,'#111',font='Tahoma, sans-serif')+R(141,89,700,241,'#fff',0,'#808080')
         b+=H(t,164,147,'Robin-G0',44,'#000080')+T(165,177,'Software Engineer · R&D',16,'#222')
         for x,label in ((206,'Canada'),(728,'France')):
@@ -212,13 +275,13 @@ def scene_desktop95(t,kind):
         b+=H(t,442,127,'Motion Input Grid',31,'#111')+T(443,164,'Body movements as input.',16,'#222')
         b+=T(443,196,'Web · Desktop · Games',14,'#333')+T(443,227,'Open source. Looking for testers.',13,'#333')
         b+=button(t,443,263,'Open project',w=171)+T(638,285,'Testers welcome',12,'#333')+T(139,349,'Status: waiting for a movement...',12,'#111');css+=GRID_CSS
-    b+=R(0,386,900,34,'#c0c0c0')+P('M0 386H900','#fff',2)+button(t,5,390,'Start',w=75)+R(90,391,225,23,'#ddd',0,'#888')+T(102,407,'Robin-G0',12,'#111')+T(875,407,'CA ↔ FR',12,'#111',text_anchor='end')
+    b+=R(0,386,900,34,'#c0c0c0')+P('M0 386H900','#fff',2)+button(t,5,390,'Start',w=75)+R(90,391,225,23,'#ddd',0,'#888')+T(102,407,'Network' if kind=='flight' else 'Motion Input Grid',12,'#111')+T(875,407,'CA ↔ FR',12,'#111',text_anchor='end')
     return svg(t,420,'Robin-G0 — a Windows 95 desktop' if kind=='flight' else 'Motion Input Grid — a Windows 95 configuration dialog',b,css)
 
 
 def scene_construction(t,kind):
     b=R(0,0,900,440,'#050523')+R(0,0,900,440,'url(#stars)')
-    css='.twinkle{animation:twinkle 2s steps(2) infinite;}@keyframes twinkle{50%{opacity:.35;}}.webspin{transform-box:fill-box;transform-origin:center;animation:spin 16s linear infinite;}@keyframes spin{to{transform:rotate(360deg);}}'
+    css='.twinkle{animation:twinkle 4.7s steps(2) -1.3s infinite;}.testers-pulse{animation:notice 6.1s ease-in-out -3.4s infinite;}@keyframes twinkle{50%{opacity:.5;}}@keyframes notice{0%,65%,100%{opacity:1}82%{opacity:.45}}.webspin{transform-box:fill-box;transform-origin:center;animation:spin 19s linear -7s infinite;}@keyframes spin{to{transform:rotate(360deg);}}'
     b+=P('M8 8H892V432H8Z','#b14cff',3)+T(450,38,'★  WELCOME TO MY PERSONAL HOMEPAGE  ★' if kind=='flight' else '★  PROJECT SPOTLIGHT  ★',16,'#ffff66',font=SERIF,text_anchor='middle',**{'class':'twinkle'})
     if kind=='flight':
         b+=H(t,171,122,'Robin-G0',76,'#38f1fc')+T(450,161,'Software Engineer — Research & Development',19,'#fff',font=SERIF,text_anchor='middle')
@@ -226,12 +289,12 @@ def scene_construction(t,kind):
         b+=R(68,192,764,39,'#1a1264',0,'#8888ff')+T(450,217,'Computer vision · Systems · Quantum computing',17,'#ffb7ef',font=SERIF,text_anchor='middle')
         f,c=flight_path(t,'M 145 306 Q 450 226 755 306','#ffff55','pixel',17,True);b+=f;css+=c
         b+=T(92,355,'CANADA',19,'#5dff91',font=SERIF)+T(734,355,'FRANCE',19,'#5dff91',font=SERIF)
-        b+=R(265,382,370,27,'#000',0,'#fff')+T(450,401,'[ SOFTWARE ENGINEER • ROBIN-G0 ]',12,'#ffff00',font=MONO,text_anchor='middle')
+        b+=R(265,382,370,27,'#000',0,'#fff')+T(450,401,'[ PERSONAL HOMEPAGE ]',12,'#ffff00',font=MONO,text_anchor='middle')
     else:
         b+=H(t,144,111,'Motion Input Grid',53,'#fff')+T(450,150,'Move your body. Control your applications.',20,'#38f1fc',font=SERIF,text_anchor='middle')
         b+=R(49,182,380,168,'#16115c',0,'#ffeb00')+grid(167,193,49,'#ffff55','#391c80','#151144',True)
         b+=T(465,210,'An open-source motion input',18,'#fff',font=SERIF)+T(465,238,'framework for web, desktop & games.',18,'#fff',font=SERIF)
-        b+=T(465,279,'TESTERS WANTED!',23,'#ff83bd',font=SERIF,**{'class':'twinkle'})+button(t,467,304,'ENTER PROJECT >>',w=290)
+        b+=T(465,279,'TESTERS WANTED!',23,'#ff83bd',font=SERIF,**{'class':'testers-pulse'})+button(t,467,304,'ENTER PROJECT >>',w=290)
         for x in range(14,888,27): b+=P(f'M{x} 391l18 -18','#ffec00',9)
         b+=R(170,372,560,30,'#090924')+T(450,393,'UNDER ACTIVE DEVELOPMENT',15,'#ffff55',font=MONO,text_anchor='middle');css+=GRID_CSS
     return svg(t,440,'Robin-G0 — personal web, 1996' if kind=='flight' else 'Motion Input Grid — animated personal-web project page',b,css)
@@ -244,7 +307,7 @@ def scene_matrix(t,kind):
             x=18+col*28; chars=''.join(f'<tspan x="{x}" dy="20">{(col*19+n*11)%10}</tspan>' for n in range(20))
             b+=f'<text y="-400" fill="#19a15a" opacity=".17" font-family="monospace" font-size="12" class="rain" style="animation-delay:-{col*.41}s">{chars}</text>'
         css+='.rain{animation:rain 13s linear infinite;}@keyframes rain{to{transform:translateY(820px);}}'
-        b+=R(38,57,824,183,'#020906',opacity='.84')+T(58,84,'IDENTITY / ROBIN-G0',11,a,font=MONO,letter_spacing=3)+H(t,55,163,'ROBIN-G0',76,'#caffde')
+        b+=R(38,57,824,183,'#020906',opacity='.84')+T(58,84,'IDENTITY',11,a,font=MONO,letter_spacing=3)+H(t,55,163,'ROBIN-G0',76,'#caffde')
         b+=T(59,204,'SOFTWARE ENGINEER · R&D',14,a,font=MONO)+P('M58 225H842','#1b4b32',1)
         f,c=flight_path(t,'M 132 312 C 323 254 577 254 768 312',a,'jet',20);b+=f;css+=c
         b+=T(60,368,'CA / CANADA',12,a,font=MONO)+T(840,368,'FR / FRANCE',12,a,font=MONO,text_anchor='end')
@@ -282,7 +345,7 @@ def scene_aqua(t,kind):
     b=R(0,0,900,430,'#316fae')+P('M0 380C260 120 480 530 900 30V430H0Z','none',fill='#6da6d1')+P('M0 420C350 120 590 450 900 135','#b9daf1',2)
     css=GRID_CSS
     if kind=='flight':
-        b+=aqua_window(35,28,830,372,'Robin-G0 — Address Book')+R(36,63,828,336,'url(#pinstripe)',10)
+        b+=aqua_window(35,28,830,372,'Address Book')+R(36,63,828,336,'url(#pinstripe)',10)
         b+=R(54,84,235,278,'#dbe6ee',9)+globe(172,191,82,'#4e91ca','#c1e7c7')
         b+=T(171,318,'Canada ↔ France',16,'#264c70',text_anchor='middle')
         b+=H(t,319,140,'Robin-G0',57,'#182f4b')+T(321,181,'Software Engineer',22,'#315978')+T(322,210,'Research & development',15,'#536d82')
@@ -299,35 +362,31 @@ def scene_aqua(t,kind):
     return svg(t,430,'Robin-G0 — Aqua Address Book' if kind=='flight' else 'Motion Input Grid — Aqua desktop application',b,css)
 
 
-def landscape():
-    b=R(0,0,900,440,'url(#sky)')
-    b+=C(725,80,57,'#fff',opacity='.25')+C(725,80,33,'#fff',opacity='.7')
-    for x,y,w in ((370,31,100),(750,153,140)):
-        b+=f'<g class="cloud">{R(x,y,w,19,"#fff",10,opacity=".56")}{C(x+w*.35,y,21,"#fff",opacity=".56")}{C(x+w*.60,y-2,29,"#fff",opacity=".56")}</g>'
-    b+=P('M0 314Q235 241 491 318T900 302V440H0Z','none',fill='#78bb43')+P('M0 355Q324 256 566 353T900 334V440H0Z','none',fill='#398d45')
-    b+=P('M0 396Q300 348 900 390V440H0Z','none',fill='#7dcad7')
-    return b
-
-
 def scene_aero(t,kind):
-    b=landscape() if kind=='flight' else R(0,0,900,440,'#82c4d9')+P('M0 380Q290 255 900 377V440H0Z','none',fill='#397ba5')
-    css='.cloud{animation:clouds 12s ease-in-out infinite alternate;}@keyframes clouds{to{transform:translateX(25px);}}'+GRID_CSS
+    b='<defs><clipPath id="aero-frame">'+R(0,0,900,440,'#fff',16)+'</clipPath></defs><g clip-path="url(#aero-frame)">'
+    css=GRID_CSS+'''.aero-background{animation:aero-depth 23s ease-in-out infinite alternate;}.aero-orb{animation:aero-orbit 11s ease-in-out -3s infinite;}@keyframes aero-depth{to{transform:translate(-12px,5px)}}@keyframes aero-orbit{50%{transform:translate(5px,-9px)}}'''
     if kind=='flight':
-        b+=H(t,42,121,'Robin-G0',68,'#fff')+T(47,160,'Software Engineer · R&D',20,'#123d59')
-        b+=T(48,192,'Computer vision · Systems · Quantum computing',14,'#164b67')
-        b+=globe(691,260,100,'url(#ocean)','#b2dd61')+C(662,218,24,'#fff',opacity='.24')
-        b+='<ellipse cx="691" cy="260" rx="98" ry="38" fill="none" stroke="#fff" opacity=".2"/><ellipse cx="691" cy="260" rx="42" ry="98" fill="none" stroke="#fff" opacity=".16"/>'
-        b+=R(31,240,390,131,'#fff',15,stroke='#d5f8ff',fill_opacity='.65',filter='url(#shadow)')
-        f,c=flight_path(t,'M 92 310 Q 225 253 359 310','#125785','jet',19);b+=f;css+=c
-        b+=T(53,350,'CANADA',12,'#185575',letter_spacing=2)+T(400,350,'FRANCE',12,'#185575',text_anchor='end',letter_spacing=2)
+        b+='<g class="aero-background">'+bitmap('art/aero-landscape.jpg',-15,-10,940,470)+'</g>'
+        b+=R(0,0,900,440,'url(#aero-shade)')
+        b+=R(31,32,495,158,'#f3fbff',17,'#ffffffcc',fill_opacity='.82',filter='url(#shadow)')
+        b+=P('M48 34H509','#fff',2,opacity='.8')+H(t,55,111,'Robin-G0',65,'#153d5c')
+        b+=T(60,154,'CANADA / FRANCE',13,'#39718e',letter_spacing=3)
+        b+='<g class="aero-orb">'+bitmap('art/aero-globe.png',600,70,267,267,filter='url(#shadow)')+'</g>'
+        b+=R(31,246,527,151,'#f1fbff',18,'#ffffffcc',fill_opacity='.8',filter='url(#shadow)')
+        f,c=flight_path(t,'M 101 323 Q 294 254 488 323','#216a98','jet',23);b+=f;css+=c
+        b+=T(57,371,'CANADA',13,'#245b79',letter_spacing=2)+T(530,371,'FRANCE',13,'#245b79',text_anchor='end',letter_spacing=2)
     else:
-        b+=R(29,29,842,376,'#fff',16,fill_opacity='.78',stroke='#e3fbff',filter='url(#shadow)')+R(32,32,836,34,'#b4e7f5',14,fill_opacity='.6')
-        b+=T(50,55,'Motion Input Grid',14,'#1d4f68')+H(t,55,130,'Motion Input Grid',44,'#194c69')
-        b+=T(57,168,'An open-source framework for motion input.',16,'#3b697f')+T(57,197,'Web · Desktop · Games',14,'#3b697f')
-        b+=button(t,57,236,'Explore project',w=210)+T(59,307,'Looking for testers',14,'#306c80')
-        b+=R(535,90,285,253,'#e5f6fc',12,'#8dbfcf')+skeleton(650,114,1.2,'#258eb1',True)
-        b+=C(718,139,28,'#9ac447',stroke='#e7ffd5',fill_opacity='.3',**{'class':'confirm'})+T(676,369,'CAMERA → MOVEMENT → ACTION',10,'#24556d',text_anchor='middle')
-    return svg(t,440,'Robin-G0 — sky, globe and a France–Canada flight' if kind=='flight' else 'Motion Input Grid — Aero motion recognition window',b,css)
+        b+=R(0,0,900,440,'#b5d9eb')+bitmap('art/aero-landscape.jpg',0,-70,900,450,opacity='.2')
+        b+=R(25,24,850,392,'#f3faff',15,'#fff',fill_opacity='.91',filter='url(#shadow)')
+        b+=R(28,27,844,36,'#c8e7f4',12)+R(28,48,844,15,'#c8e7f4')+T(49,51,'Motion Input Grid',13,'#2d607a')
+        b+=R(811,28,47,23,'#c96c61',3)+T(834,45,'×',18,'#fff',text_anchor='middle')
+        b+=H(t,55,132,'Motion Input Grid',43,'#194c69')+T(58,172,'Open-source motion input framework.',16,'#426e83')
+        b+=T(58,204,'Websites, desktop apps and games.',15,'#426e83')+button(t,58,249,'Explore project',w=213)
+        b+=T(59,329,'Looking for testers',14,'#306c80')
+        b+=R(536,92,285,259,'#0f3d5b',10,'#80b7cf')+R(546,102,265,239,'url(#graph)',7)
+        b+=skeleton(665,120,1.35,'#c2f2ff',True)+C(741,145,26,'#bcda87',stroke='#f4ffe3',fill_opacity='.18',**{'class':'confirm'})
+        b+=T(679,379,'LANDMARK PREVIEW',11,'#3b697f',text_anchor='middle',letter_spacing=2)
+    return svg(t,440,'Robin-G0, Canada to France' if kind=='flight' else 'Motion Input Grid, Aero landmark preview',b+'</g>',css)
 
 
 def scene_metro(t,kind):
@@ -374,7 +433,7 @@ def scene_glass(t,kind):
     b=R(0,0,900,440,'url(#aurora)',24);css=GRID_CSS
     if kind=='flight':b+=P('M-90 390C85 -85 472 476 1002 24','#b1b4f8',100,opacity='.12',**{'class':'aurora-flow'})
     if kind=='flight':
-        b+=T(42,57,'ROBIN-G0',11,'#dae6ff',letter_spacing=4)+H(t,39,159,'Robin-G0',77,'#fff')
+        b+=T(42,57,'PROFILE',11,'#dae6ff',letter_spacing=4)+H(t,39,159,'Robin-G0',77,'#fff')
         b+=T(45,204,'Software Engineer',24,'#edf2ff')+T(46,237,'Research & development',16,'#c5d6f4')
         b+=T(46,333,'Computer vision',15,'#e5eeff')+T(46,362,'Systems · Quantum computing',15,'#e5eeff')
         b+=R(564,40,292,359,'url(#glass)',25,'#ffffff55',filter='url(#shadow)')+T(590,78,'CANADA / FRANCE',11,'#e6eeff',letter_spacing=2)
@@ -393,7 +452,7 @@ def scene_glass(t,kind):
 
 def scene_field_notes(t,kind):
     b=R(0,0,900,430,t['bg'])+R(0,0,900,430,'#b4a98c',opacity='.06',filter='url(#paper)')
-    b+=P('M36 46H864M36 392H864',t['ink'],1)+T(37,32,'ROBIN-G0  /  ENGINEERING NOTES',10,t['accent'],font=MONO,letter_spacing=1)
+    b+=P('M36 46H864M36 392H864',t['ink'],1)+T(37,32,'ENGINEERING NOTES',10,t['accent'],font=MONO,letter_spacing=1)
     css=GRID_CSS
     if kind=='flight':
         b+=H(t,33,145,'Robin-G0',91,t['ink'])+T(41,185,'Software Engineer · Research & development',18,t['muted'],font=SERIF)
@@ -431,6 +490,43 @@ def action_button(t,label):
                             'width="280" height="64" viewBox="0 0 280 64"',1)
 
 
+def about(t):
+    """The requested biography belongs to the theme, not a Markdown paragraph."""
+    k=t['id'];ink=t['ink'];mut=t['muted'];a=t['accent'];h=272
+    if k=='phosphor':
+        b=R(0,0,900,h,'#080f09',14)+R(0,0,900,h,'url(#scan)',14);ink=mut=a
+        b+=T(30,35,'$ cat about.txt',12,a,font=MONO)
+    elif k=='desktop95':
+        b=R(0,0,900,h,'#087e7d')+window95(14,12,872,245,'About')+R(30,54,839,186,'#fff',0,'#888');ink='#172746';mut='#4c5c70';a='#000080'
+    elif k=='construction':
+        b=R(0,0,900,h,'#050523')+R(0,0,900,h,'url(#stars)')+P('M9 9H891V263H9Z','#8271e4',2);ink='#fff';mut='#e3daff';a='#62ffff'
+    elif k=='matrix':
+        b=R(0,0,900,h,'#020906')+P('M24 43V23H43 M856 248H876V230','#49ee8b',1);ink='#caffdf';mut='#95caaa';a='#55ee91'
+    elif k=='y2k':
+        b=R(0,0,900,h,t['bg'])+R(0,0,900,11,'url(#chrome)')+P('M24 253H876',a,2)
+    elif k=='aqua':
+        b=R(0,0,900,h,'#316fae')+aqua_window(17,13,866,245,'About')+R(30,51,839,192,'url(#pinstripe)');ink='#25455f';mut='#4c6d85';a='#276ea8'
+    elif k=='aero':
+        b=R(0,0,900,h,'#cde8f3',14)+R(16,14,868,244,'#f8fdff',13,'#fff',fill_opacity='.9',filter='url(#shadow)');ink='#204c68';mut='#456d83';a='#2378a5'
+    elif k=='metro':
+        b=R(0,0,900,h,t['bg'])+R(20,20,425,232,'#087aa5')+R(455,20,425,232,'#694597');ink=mut=a='#fff'
+    elif k=='material':
+        b=R(0,0,900,h,t['soft'])+R(18,15,864,239,t['bg'],7,filter='url(#shadow)')
+    elif k=='glass':
+        b=R(0,0,900,h,'url(#aurora)',20)+R(15,15,870,242,'url(#glass)',18,'#ffffff55');ink='#fff';mut='#d8e6fa';a='#e5f4ff'
+    else:
+        b=R(0,0,900,h,t['bg'])+R(0,0,900,h,'#b4a98c',opacity='.05',filter='url(#paper)')+P('M29 20H873 M29 252H873',ink,.8)
+    x=48 if k in ('desktop95','aqua') else 36;y=89 if k in ('desktop95','aqua') else 64
+    font=MONO if k in ('phosphor','matrix') else SERIF if k in ('field-notes','construction') else None
+    role='I’m a software engineer and full-stack developer,'
+    size=min(16,390/(len(role)*(.62 if font==MONO else .52)))
+    b+=T(x,y,'About me',25,ink,font=font)+T(490,y,'Current interests',18,a,font=font)
+    b+=T(x,y+44,role,size,ink,font=font)+T(x,y+73,'focused on research and development.',15,mut,font=font)
+    b+=T(490,y+44,'Exploring computer vision and',16,ink,font=font)+T(490,y+73,'quantum computing at the moment.',16,ink,font=font)
+    if k!='metro':b+=P(f'M458 {y-20}V{y+109}',a,.7,opacity='.35')
+    return svg(t,h,'About me: software engineer and full-stack developer focused on R&D; currently exploring computer vision and quantum computing',b)
+
+
 def metrics(data):
     def number(k): return f"{data[k]:,}" if data.get(k) is not None else '—'
     return [(number('repositories'),'public repos'),(number('commits'),'commits'),
@@ -453,7 +549,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(35+i*288,103,v,32,a,font=MONO)+T(35+i*288,132,label.upper(),11,a,font=MONO)
         b+=T(35,184,'LANGUAGE              DISTRIBUTION                         SHARE',12,a,font=MONO)
         for i,(name,pct,label) in enumerate(rows):
-            y=218+i*29;b+=T(35,y,name,13,a,font=MONO)+T(255,y,'█'*max(1,round(pct*40)),13,a,font=MONO)+T(856,y,label,13,a,font=MONO,text_anchor='end')
+            y=218+i*29;blocks=max(1,round(pct*40));b+=T(35,y,name,13,a,font=MONO)+T(255,y,'█'*blocks,13,a,font=MONO)+meter(t,255,y-12,blocks*7.8,13,a,i,base=False)+T(856,y,label,13,a,font=MONO,text_anchor='end')
         b+=T(35,h-43,'UPDATED '+updated+' UTC',10,a,font=MONO)+T(35,h-20,foot,10,a,font=MONO)
     elif k=='desktop95':
         h=282+max(len(rows),1)*28;b=R(0,0,900,h,'#087e7d')+window95(13,12,874,h-27,'System Monitor — Public GitHub activity')
@@ -461,7 +557,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(40,91+i*95,label,12,'#333')+T(40,125+i*95,v,27,'#000080')
         b+=R(237,59,634,h-89,'#fff',0,'#808080')+T(254,88,'Language',13,'#111')+T(850,88,'Code size',13,'#111',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
-            y=123+i*28;b+=T(254,y,name,12,'#111')+R(406,y-11,330*pct,13,'#000080')+T(852,y,label,12,'#111',text_anchor='end')
+            y=123+i*28;b+=language_icon(name,254,y-15,16)+T(280,y,name,12,'#111')+meter(t,406,y-11,330*pct,13,'#000080',i)+T(852,y,label,12,'#111',text_anchor='end')
         b+=T(34,h-23,'Updated '+updated+' UTC · owned public repositories',10,'#111')
     elif k=='construction':
         h=280+max(len(rows),1)*29;b=R(0,0,900,h,'#050523')+R(0,0,900,h,'url(#stars)')
@@ -470,7 +566,7 @@ def activity(t,data):
             x=28+i*294;b+=R(x,69,264,90,'#171148',0,'#8888ff')+T(x+132,109,v,30,'#6effcc',font=MONO,text_anchor='middle')+T(x+132,140,label,15,'#fff',font=SERIF,text_anchor='middle')
         b+=P('M28 181H872','#ffed00',3)
         for i,(name,pct,label) in enumerate(rows):
-            y=218+i*29;c=COLORS[i%len(COLORS)];b+=T(31,y,name,16,'#fff',font=SERIF)+R(220,y-13,540*pct,15,c,0,'#fff')+T(867,y,label,14,'#ffff66',font=MONO,text_anchor='end')
+            y=218+i*29;c=COLORS[i%len(COLORS)];b+=T(31,y,name,16,'#fff',font=SERIF)+meter(t,220,y-13,540*pct,15,c,i)+T(867,y,label,14,'#ffff66',font=MONO,text_anchor='end')
         b+=T(450,h-33,'Last updated: '+updated+' UTC',12,'#bdbdff',font=SERIF,text_anchor='middle')+T(450,h-12,foot,11,'#fff',font=SERIF,text_anchor='middle')
     elif k=='matrix':
         h=max(448,140+len(rows)*28);b=R(0,0,900,h,'#020906')+P(f'M321 30V{h-30}',a,1)
@@ -478,14 +574,14 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(29,111+i*103,v,40,'#d1ffdf',font=MONO)+T(30,139+i*103,label.upper(),10,a,font=MONO)
         b+=T(350,48,'LANGUAGE DISTRIBUTION',11,a,font=MONO)
         for i,(name,pct,label) in enumerate(rows):
-            y=87+i*28;b+=T(351,y,name,11,'#b1d5bd',font=MONO)+P(f'M500 {y-4}H{500+272*pct}',a,3)+T(870,y,label,11,a,font=MONO,text_anchor='end')
+            y=87+i*28;b+=T(351,y,name,11,'#b1d5bd',font=MONO)+meter(t,500,y-6,272*pct,3,a,i)+T(870,y,label,11,a,font=MONO,text_anchor='end')
         b+=T(28,h-20,updated+' UTC / DEFAULT BRANCH HISTORY',10,a,font=MONO)
     elif k=='y2k':
         h=330+max(len(rows),1)*28;b=R(0,0,900,h,t['bg'])+R(0,0,900,21,'url(#chrome)')+H(t,29,84,'Public activity',45,ink)
         for i,(v,label) in enumerate(values):
             x=30+i*289;b+=P(f'M{x} 113H{x+269}L{x+256} 219H{x-1}Z','#8895b4',1,'url(#chrome)')+T(x+18,163,v,35,'#192747',font='Arial, sans-serif',font_weight='bold',font_style='italic')+T(x+18,193,label.upper(),10,'#243857',letter_spacing=1)
         for i,(name,pct,label) in enumerate(rows):
-            y=267+i*28;b+=T(32,y,name,13,ink)+P(f'M207 {y-8}H{207+566*pct}L{204+566*pct} {y+1}H204Z',a,.5,a)+T(870,y,label,12,mut,text_anchor='end')
+            y=267+i*28;b+=T(32,y,name,13,ink)+meter(t,207,y-8,566*pct,9,a,i)+T(870,y,label,12,mut,text_anchor='end')
         b+=P(f'M30 {h-45}H870',a,1)+T(30,h-20,'PUBLIC DATA / '+updated+' UTC',11,mut,letter_spacing=2)
     elif k=='aqua':
         h=258+max(len(rows),1)*28;b=R(0,0,900,h,'#316fae')+aqua_window(16,15,868,h-30,'GitHub Library — Statistics')
@@ -493,7 +589,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(44,129+i*92,label,12,'#3b536b')+T(44,163+i*92,v,26,'#245e91')
         b+=T(235,89,'Language',12,'#344f68')+T(853,89,'Share',12,'#344f68',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
-            y=121+i*28;b+=R(226,y-19,643,28,'#e7eff7' if i%2==0 else '#fff')+C(243,y-5,5,COLORS[i%6])+T(259,y,name,12,'#294b69')+R(433,y-11,337*pct,12,'url(#gel)',6)+T(852,y,label,12,'#294b69',text_anchor='end')
+            y=121+i*28;b+=R(226,y-19,643,28,'#e7eff7' if i%2==0 else '#fff')+C(243,y-5,5,COLORS[i%6])+T(259,y,name,12,'#294b69')+meter(t,433,y-11,337*pct,12,'url(#gel)',i,6)+T(852,y,label,12,'#294b69',text_anchor='end')
         b+=T(235,h-32,'Updated '+updated+' UTC · Public repositories only',10,'#49637a')
     elif k=='aero':
         h=290+max(len(rows),1)*27;b=R(0,0,900,h,'#d9f0f5')+P(f'M0 {h}Q450 {h-145} 900 {h-30}V{h}Z','none',fill='#c0dfa4')
@@ -501,7 +597,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):
             x=42+i*285;b+=R(x,78,251,91,'#d2edf8',10,'#a4cedd')+T(x+17,119,v,32,'#1c668a')+T(x+18,148,label,12,'#47758b')
         for i,(name,pct,label) in enumerate(rows):
-            y=210+i*27;b+=T(44,y,name,12,'#275b72')+R(213,y-10,544,11,'#c5e3ec',6)+R(213,y-10,544*pct,11,'#428eb8',6)+P(f'M218 {y-8}H{213+544*pct}', '#c6f7ff',2)+T(850,y,label,12,'#275b72',text_anchor='end')
+            y=210+i*27;b+=T(44,y,name,12,'#275b72')+R(213,y-10,544,11,'#c5e3ec',6)+meter(t,213,y-10,544*pct,11,'#428eb8',i,6)+T(850,y,label,12,'#275b72',text_anchor='end')
         b+=T(44,h-33,'Public repositories · Updated '+updated+' UTC',11,'#47758b')
     elif k=='metro':
         h=267+math.ceil(max(len(rows),1)/3)*105;b=R(0,0,900,h,t['bg'])+H(t,30,65,'Public activity',45,ink)
@@ -509,7 +605,7 @@ def activity(t,data):
             x=30+i*288;c=['#087aa5','#b33c7b','#4b963d'][i];b+=R(x,89,272,105,c)+T(x+16,138,v,36,'#fff',font='Segoe UI Light, sans-serif')+T(x+18,176,label,14,'#fff')
         for i,(name,pct,label) in enumerate(rows):
             x=30+(i%3)*288;y=218+(i//3)*105;c=['#145e93','#654698','#b3512b','#347c62'][i%4]
-            b+=R(x,y,272,93,c)+T(x+16,y+30,name,15,'#fff')+T(x+16,y+70,label,29,'#fff',font='Segoe UI Light, sans-serif')
+            b+=R(x,y,272,93,c)+language_icon(name,x+218,y+17,34,metro=True)+T(x+16,y+30,name,15,'#fff')+T(x+16,y+70,label,29,'#fff',font='Segoe UI Light, sans-serif')+meter(t,x+16,y+80,240*pct,3,'#ffffffbb',i)
         b+=T(30,h-15,'Updated '+updated+' UTC · owned public repositories',11,mut)
     elif k=='material':
         h=284+math.ceil(max(len(rows),1)/2)*47;b=R(0,0,900,h,t['soft'])+R(23,19,854,h-42,t['bg'],8,filter='url(#shadow)')
@@ -518,7 +614,7 @@ def activity(t,data):
         b+=P('M46 179H854',t['border'],1)
         for i,(name,pct,label) in enumerate(rows):
             x=48+(i%2)*413;y=216+(i//2)*47;c=COLORS[i%6]
-            b+=C(x+5,y-4,5,c)+T(x+20,y,name,12,ink)+T(x+365,y,label,12,mut,text_anchor='end')+R(x+20,y+9,345,3,t['soft'])+R(x+20,y+9,345*pct,3,a)
+            b+=C(x+5,y-4,5,c)+T(x+20,y,name,12,ink)+T(x+365,y,label,12,mut,text_anchor='end')+R(x+20,y+9,345,3,t['soft'])+meter(t,x+20,y+9,345*pct,3,a,i)
         b+=T(48,h-40,'Updated '+updated+' UTC · filtered additions + deletions',10,mut)
     elif k=='glass':
         h=290+math.ceil(max(len(rows),1)/2)*44;b=R(0,0,900,h,t['bg'],24)+R(17,17,866,h-34,t['soft'],22,t['border'])
@@ -526,7 +622,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):
             x=41+i*286;b+=T(x,134,v,37,ink,font='Segoe UI Light, sans-serif')+T(x,164,label,12,mut)
         b+=R(42,190,815,7,t['border'],4);x=42
-        for i,(_,pct,_) in enumerate(rows):b+=R(x,190,815*pct,7,COLORS[i%6],3);x+=815*pct
+        for i,(_,pct,_) in enumerate(rows):b+=meter(t,x,190,815*pct,7,COLORS[i%6],i,3);x+=815*pct
         for i,(name,pct,label) in enumerate(rows):
             x=42+(i%2)*422;y=237+(i//2)*44;b+=C(x+4,y-4,4,COLORS[i%6])+T(x+19,y,name,12,ink)+T(x+372,y,label,12,mut,text_anchor='end')+P(f'M{x+19} {y+12}H{x+372}',t['border'],.5)
         b+=T(42,h-37,'Updated '+updated+' UTC · owned public repositories',10,mut)
@@ -536,7 +632,7 @@ def activity(t,data):
         for i,(v,label) in enumerate(values):b+=T(37,117+i*104,v,44,ink,font=SERIF)+T(39,143+i*104,label,14,mut,font=SERIF,font_style='italic')
         b+=P(f'M338 70V{h-54}',t['border'],1)+T(366,89,'Language',14,mut,font=SERIF)+T(862,89,'Share of code',14,mut,font=SERIF,text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
-            y=123+i*29;b+=P(f'M366 {y+9}H863',t['border'],.6)+T(366,y,name,13,ink,font=SERIF)+T(862,y,label,13,ink,font=SERIF,text_anchor='end')+P(f'M549 {y-4}H{549+218*pct}',a,2)
+            y=123+i*29;b+=P(f'M366 {y+9}H863',t['border'],.6)+T(366,y,name,13,ink,font=SERIF)+T(862,y,label,13,ink,font=SERIF,text_anchor='end')+meter(t,549,y-5,218*pct,2,a,i)
         b+=P(f'M35 {h-41}H866',ink,1)+T(37,h-19,'Recorded '+updated+' UTC · Public repositories only',10,mut,font=MONO)
     if not rows:
         notice_ink={'aqua':'#294b69','aero':'#275b72','desktop95':'#111','construction':'#fff','matrix':'#67ff9c','phosphor':a}.get(k,mut)
