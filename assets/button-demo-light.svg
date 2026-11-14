@@ -2,7 +2,7 @@
 <title id="title">Interactive demo</title>
 <defs>
 
-<linearGradient id="aqua-title" x2="0" y2="1"><stop stop-color="#fcfdff"/><stop offset=".45" stop-color="#edf0f3"/><stop offset="1" stop-color="#c5cbd2"/></linearGradient><linearGradient id="aqua-toolbar" x2="0" y2="1"><stop stop-color="#edf1f5"/><stop offset="1" stop-color="#cbd4dd"/></linearGradient><pattern id="candy" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-6 24L18 0M6 24L30 0" stroke="#b9edff" stroke-width="5" opacity=".45"/></pattern>
+<pattern id="hatch" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-12 24L12 0M0 24L24 0M12 24L36 0" stroke="#100b3b" stroke-width="5" opacity=".48"/></pattern>
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
 <linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -15,11 +15,11 @@
 <linearGradient id="aurora" x2="1" y2="1"><stop stop-color="#172254"/><stop offset=".5" stop-color="#5b579d"/><stop offset="1" stop-color="#21868f"/></linearGradient>
 <linearGradient id="glass" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity=".035"/></linearGradient>
 <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 1H4" stroke="#000" opacity=".18"/></pattern>
-<pattern id="pinstripe" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0H4" stroke="#075fbb" opacity=".09"/></pattern>
-<pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#9db7d0" opacity=".55"/></pattern>
+<pattern id="pinstripe" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0H4" stroke="#62ffff" opacity=".09"/></pattern>
+<pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#8d68ff" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>svg{font-family:Lucida Grande, Verdana, sans-serif;color:#172e4c;}.mono{font-family:'Lucida Console',Consolas,monospace;}
- .confirm{stroke-width:4;animation:aqua-focus 5s ease-in-out infinite;}@keyframes aqua-focus{50%{stroke-width:1;opacity:.3}}.era-copy{animation:aqua-copy 15s ease-in-out infinite}.meter-texture{animation:stripe-scroll 1.7s linear infinite}.gel-breathe{animation:gel-breathe 4s ease-in-out infinite}@keyframes stripe-scroll{to{transform:translateX(24px)}}@keyframes aqua-copy{0%,85%,100%{opacity:1}92%{opacity:.72}}@keyframes gel-breathe{50%{opacity:.45}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
+<style>svg{font-family:'Times New Roman', Times, serif;color:#ffffff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
+ .trail{animation-duration:5s;animation-timing-function:steps(4);}.era-copy{animation:web-link 9s steps(1) infinite}.meter-texture{animation:stripe-scroll 1s linear infinite}@keyframes stripe-scroll{to{transform:translateX(24px)}}@keyframes web-link{0%,84%,100%{text-decoration:underline}85%,94%{text-decoration:none}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
-</style><rect x="12" y="12" width="256" height="32" rx="16" fill="url(#gel)" stroke="#2463a0" /><rect x="20" y="15" width="240" height="9" rx="7" fill="#ffffff77" stroke="none" class="gel-breathe"/><text x="140.0" y="34" font-size="13" fill="#fff"  text-anchor="middle" font-weight="bold">Interactive demo</text></svg>
+</style><rect x="12" y="12" width="256" height="34" rx="0" fill="#ffef00" stroke="#fff" stroke-width="2"/><text x="140.0" y="35" font-size="17" fill="#000080" font-family="Georgia,'Times New Roman',serif" text-anchor="middle" font-weight="bold">Interactive demo</text></svg>
