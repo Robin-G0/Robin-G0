@@ -577,13 +577,18 @@ def language_rows(data):
     return [(name,n/total,f'{n/total:.1%}' if n/total>=.001 else '<0.1%') for name,n in items]
 
 
+def public_scope(t,x,y,ink=None):
+    return T(x,y,'PUBLIC PROJECTS ONLY',12,ink or t['accent'],text_anchor='end',
+             font_weight='bold',letter_spacing='.7',data_stats_scope='public-only')
+
+
 def activity(t,data):
     """Distinct information layouts, while keeping every number and language."""
     k=t['id']
     if k=='aero':
         return aero.activity(t,data,sys.modules[__name__])
     rows=language_rows(data);values=metrics(data);a=t['accent'];ink=t['ink'];mut=t['muted'];css=''
-    foot='Public repositories · Language share by bytes · Filtered additions + deletions'
+    foot='Public projects only · Language share by bytes · Filtered additions + deletions'
     if k=='phosphor':
         h=306+max(len(rows),1)*29;b=R(0,0,900,h,'#080f09',15)+R(0,0,900,h,'url(#scan)',15)
         b+=T(32,40,'$ git report --public --exclude-generated',14,a,font=MONO)+P(f'M30 58H870',a)
@@ -599,7 +604,7 @@ def activity(t,data):
         b+=R(237,59,634,h-89,'#fff',0,'#808080')+T(254,88,'Language',13,'#111')+T(850,88,'Code size',13,'#111',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
             y=123+i*28;b+=language_icon(name,254,y-15,16)+T(280,y,name,12,'#111')+R(406,y-11,330,13,'#e6e6e6')+meter(t,406,y-11,330*pct,13,'#000080',i)+T(852,y,label,12,'#111',text_anchor='end')
-        b+=T(34,h-23,'Owned public repositories',10,'#111')
+        b+=T(34,h-23,'Stats from my public projects only.',11,'#111')
     elif k=='construction':
         h=280+max(len(rows),1)*29;b=R(0,0,900,h,'#050523')+R(0,0,900,h,'url(#stars)')
         b+=T(450,43,'★ MY GITHUB STATS ★',29,'#ffff66',font=SERIF,text_anchor='middle',font_weight='bold')
@@ -616,14 +621,14 @@ def activity(t,data):
         b+=T(350,48,'LANGUAGE DISTRIBUTION',11,a,font=MONO)
         for i,(name,pct,label) in enumerate(rows):
             y=87+i*28;b+=T(351,y,name,11,'#b1d5bd',font=MONO)+R(500,y-6,272,3,'#153723')+meter(t,500,y-6,272*pct,3,a,i)+T(870,y,label,11,a,font=MONO,text_anchor='end')
-        b+=T(28,h-20,'PUBLIC / DEFAULT BRANCH HISTORY',10,a,font=MONO)
+        b+=T(28,h-20,'PUBLIC PROJECTS ONLY / DEFAULT BRANCH HISTORY',10,a,font=MONO)
     elif k=='y2k':
         h=330+max(len(rows),1)*28;b=R(0,0,900,h,t['bg'])+R(0,0,900,21,'url(#chrome)')+H(t,29,84,'Public activity',45,ink)
         for i,(v,label) in enumerate(values):
             x=30+i*289;b+=P(f'M{x} 113H{x+269}L{x+256} 219H{x-1}Z','#8895b4',1,'url(#chrome-paper)')+T(x+18,163,v,35,'#192747',font='Arial, sans-serif',font_weight='bold',font_style='italic')+T(x+18,193,label.upper(),10,'#243857',letter_spacing=1)
         for i,(name,pct,label) in enumerate(rows):
             y=267+i*28;b+=T(32,y,name,13,ink)+R(207,y-8,566,9,t['soft'])+meter(t,207,y-8,566*pct,9,a,i)+T(870,y,label,12,mut,text_anchor='end')
-        b+=P(f'M30 {h-45}H870',a,1)+T(30,h-20,'PUBLIC DATA',11,mut,letter_spacing=2)
+        b+=P(f'M30 {h-45}H870',a,1)+T(30,h-20,'Stats from my public projects only.',12,mut)
     elif k=='aqua':
         h=258+max(len(rows),1)*28;b=R(0,0,900,h,'#316fae')+aqua_window(16,15,868,h-30,'GitHub Library — Statistics')
         b+=R(29,61,187,h-94,'#dce7ef')+T(44,92,'LIBRARY',10,'#62778a',font_weight='bold')
@@ -631,7 +636,7 @@ def activity(t,data):
         b+=T(235,89,'Language',12,'#344f68')+T(853,89,'Share',12,'#344f68',text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
             y=121+i*28;b+=R(226,y-19,643,28,'#e7eff7' if i%2==0 else '#fff')+C(243,y-5,5,COLORS[i%6])+T(259,y,name,12,'#294b69')+R(433,y-11,337,12,'#d4e1ec',6,'#b4c9da')+meter(t,433,y-11,337*pct,12,'url(#gel)',i,6)+T(852,y,label,12,'#294b69',text_anchor='end')
-        b+=T(235,h-32,'Public repositories only',10,'#49637a')
+        b+=T(235,h-32,'Stats from my public projects only.',11,'#49637a')
     elif k=='metro':
         h=267+math.ceil(max(len(rows),1)/3)*105;b=R(0,0,900,h,t['bg'])+H(t,30,65,'Public activity',45,ink)
         for i,(v,label) in enumerate(values):
@@ -640,7 +645,7 @@ def activity(t,data):
             x=30+(i%3)*288;y=218+(i//3)*105;c=['#145e93','#654698','#b3512b','#347c62'][i%4]
             b+=R(x,y,272,93,c)+f'<g class="metro-app-icon" style="animation-delay:-{i*.61}s">'+language_icon(name,x+218,y+17,34,metro=True)+'</g>'+T(x+16,y+30,name,15,'#fff')+T(x+16,y+70,label,29,'#fff',font='Segoe UI Light, sans-serif')+R(x+16,y+80,240,3,'#ffffff30')+meter(t,x+16,y+80,240*pct,3,'#ffffffbb',i)
         css+='''.metro-app-icon{transform-box:fill-box;transform-origin:center;animation:metro-app-tile 9s cubic-bezier(.1,.8,.2,1) infinite}@keyframes metro-app-tile{0%,72%,100%{transform:scaleY(1)}80%{transform:scaleY(.05)}88%{transform:scaleY(1)}}'''
-        b+=T(30,h-15,'Owned public repositories',11,mut)
+        b+=T(30,h-15,'Stats from my public projects only.',12,mut)
     elif k=='material':
         h=284+math.ceil(max(len(rows),1)/2)*47;b=R(0,0,900,h,t['soft'])+R(23,19,854,h-42,t['bg'],8,filter='url(#shadow)')
         b+=T(46,58,'Public activity',24,ink)
@@ -649,7 +654,7 @@ def activity(t,data):
         for i,(name,pct,label) in enumerate(rows):
             x=48+(i%2)*413;y=216+(i//2)*47;c=COLORS[i%6]
             b+=C(x+5,y-4,5,c)+T(x+20,y,name,12,ink)+T(x+365,y,label,12,mut,text_anchor='end')+R(x+20,y+9,345,3,t['soft'])+meter(t,x+20,y+9,345*pct,3,a,i)
-        b+=T(48,h-40,'Filtered additions + deletions',10,mut)
+        b+=T(48,h-40,'Public projects only / Filtered additions + deletions',11,mut)
     elif k=='glass':
         h=290+math.ceil(max(len(rows),1)/2)*44;b=materials.glass_backdrop(h,section='activity')+materials.lens(17,17,866,h-34,h,section='activity')+materials.glass_foreground(h,'activity');ink='#fff';mut='#d8e6fa'
         b+=H(t,40,72,'Public activity',38,ink)
@@ -663,7 +668,7 @@ def activity(t,data):
             b+=R(x+128,y-10,200,10,c,5,fill_opacity='.32',data_language_track='true')
             b+=meter(t,x+128,y-10,200*pct,10,c,len(rows)+i,5)
             b+=T(x+372,y,label,12,'#edf5ff',text_anchor='end')+'</g>'
-        b+=T(42,h-37,'Owned public repositories',10,mut)
+        b+=T(42,h-37,'Stats from my public projects only.',12,mut)
     else:
         h=max(440,155+len(rows)*29);b=R(0,0,900,h,t['bg'])+R(0,0,900,h,'#b4a98c',opacity='.05',filter='url(#paper)')
         b+=T(35,30,'PUBLIC WORK / ACTIVITY LEDGER',10,a,font=MONO,letter_spacing=1)+P('M35 46H866',ink,1)
@@ -671,11 +676,18 @@ def activity(t,data):
         b+=P(f'M338 70V{h-54}',t['border'],1)+T(366,89,'Language',14,mut,font=SERIF)+T(862,89,'Share of code',14,mut,font=SERIF,text_anchor='end')
         for i,(name,pct,label) in enumerate(rows):
             y=123+i*29;b+=P(f'M366 {y+9}H863',t['border'],.6)+T(366,y,name,13,ink,font=SERIF)+T(862,y,label,13,ink,font=SERIF,text_anchor='end')+meter(t,549,y-5,218*pct,2,a,i)
-        b+=P(f'M35 {h-41}H866',ink,1)+T(37,h-19,'Public repositories only',10,mut,font=MONO)
+        b+=P(f'M35 {h-41}H866',ink,1)+T(37,h-19,'Stats from my public projects only.',11,mut,font=MONO)
     if not rows:
         notice_ink={'aqua':'#294b69','aero':'#275b72','desktop95':'#111','construction':'#fff','matrix':'#67ff9c','phosphor':a}.get(k,mut)
         b+=T(365 if k in ('matrix','field-notes') else 35,228,'Statistics pending collection.' if data['status']!='ready' else 'No detected languages.',13,notice_ink)
-    return svg(t,h,'Public activity: personal commits, filtered line edits, repositories and every detected language',b,css)
+    scope_position={'phosphor':(867,40,a),'desktop95':(790,35,'#fff'),
+                    'construction':(870,43,'#62ffff'),'matrix':(870,48,a),
+                    'y2k':(870,77,a),'aqua':(851,39,'#294b69'),
+                    'metro':(870,61,a),'material':(850,56,a),
+                    'glass':(855,67,'#d8e6fa'),'field-notes':(866,30,a)}
+    x,y,color=scope_position.get(k,(866,30,a))
+    b+=public_scope(t,x,y,color)
+    return svg(t,h,'Statistics from my public projects only: authored commits, filtered line edits, repositories and language shares',b,css)
 
 
 def label_card(t,selected=None,preview=False,number=None):

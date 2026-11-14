@@ -115,6 +115,7 @@ def activity(t,data,a):
     b+='<defs><clipPath id="aero-report">'+a.R(0,0,900,h,'#fff',20)+'</clipPath></defs><g clip-path="url(#aero-report)">'
     b+=a.bitmap('art/aero-instrument-v3.jpg',0,h-265,900,320,opacity='.85')
     b+=heading(a,t,40,57,'GitHub activity',36)
+    b+=a.public_scope(t,856,53,MUTED)
     # Numbers stand on a ruled baseline, rather than inside three matching boxes.
     for i,(value,label) in enumerate(values):
         x=42+i*286
@@ -127,9 +128,9 @@ def activity(t,data,a):
         b+=a.meter(t,213,y-11,540*pct,12,'url(#aero-blue)',i,6)
     if not rows:
         b+=copy(a,44,220,'No detected languages.' if data['status']=='ready' else 'Statistics pending collection.',15)
-    b+=copy(a,44,h-47,'Public repositories / Language share by bytes',10,MUTED)
+    b+=copy(a,44,h-47,'Stats from my public projects only / Language share by bytes',11,MUTED)
     b+=copy(a,44,h-27,'Filtered additions + deletions',10,MUTED)
-    return a.svg(t,h,'Public activity: personal commits, filtered line edits, repositories and every detected language',b+'</g>')
+    return a.svg(t,h,'Statistics from my public projects only: authored commits, filtered line edits, repositories and language shares',b+'</g>')
 
 
 def label_card(t,selected,preview,number,a):
