@@ -3,5 +3,8 @@ __pycache__/
 
 # Personal design review notes; kept locally for subsequent iterations.
 /THEME_FEEDBACK.local.md
+/GAME_REVIEWS.local.md
 /.design-work/
 /docs/
+
+next.md
