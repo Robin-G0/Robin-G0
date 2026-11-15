@@ -2,7 +2,7 @@
 <title id="title">Website</title>
 <defs>
 
-<pattern id="hatch" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M-12 24L12 0M0 24L24 0M12 24L36 0" stroke="#100b3b" stroke-width="5" opacity=".48"/></pattern>
+
 <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#061227" flood-opacity=".18"/></filter>
 <filter id="white-icon"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
 <linearGradient id="download-glint"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -15,11 +15,11 @@
 <linearGradient id="aurora" x2="1" y2="1"><stop stop-color="#172254"/><stop offset=".5" stop-color="#5b579d"/><stop offset="1" stop-color="#21868f"/></linearGradient>
 <linearGradient id="glass" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity=".035"/></linearGradient>
 <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 1H4" stroke="#000" opacity=".18"/></pattern>
-<pattern id="pinstripe" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0H4" stroke="#5affee" opacity=".09"/></pattern>
-<pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#745be0" opacity=".55"/></pattern>
+<pattern id="pinstripe" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0H4" stroke="#c6b4ff" opacity=".09"/></pattern>
+<pattern id="graph" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#534b64" opacity=".55"/></pattern>
 <pattern id="stars" width="117" height="97" patternUnits="userSpaceOnUse"><path d="M18 12v6m-3-3h6M89 67v4m-2-2h4" stroke="#fff"/><circle cx="54" cy="45" r="1" fill="#9a9aff"/></pattern>
 </defs>
-<style>svg{font-family:'Times New Roman', Times, serif;color:#ffffff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
- .trail{animation-duration:5s;animation-timing-function:steps(4);}.era-copy{animation:web-link 9s steps(1) infinite}.meter-texture{animation:stripe-scroll 1s linear infinite}@keyframes stripe-scroll{to{transform:translateX(24px)}}@keyframes web-link{0%,84%,100%{text-decoration:underline}85%,94%{text-decoration:none}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
+<style>svg{font-family:Arial, sans-serif;color:#f3edff;}.mono{font-family:'Lucida Console',Consolas,monospace;}
+ .ink-ripple{transform-box:fill-box;transform-origin:center;animation:ink 4s ease-out infinite;}@keyframes ink{0%{transform:scale(.5);opacity:.6}75%,100%{transform:scale(1.6);opacity:0}}.era-copy{animation:paper-copy 16s cubic-bezier(.4,0,.2,1) infinite}.meter-head{animation:material-sweep 6s cubic-bezier(.4,0,.2,1) infinite}@keyframes material-sweep{0%,22%{transform:translateX(-50px) scaleX(.3)}60%{transform:translateX(calc(var(--travel)*.4)) scaleX(1.5)}90%,100%{transform:translateX(var(--travel)) scaleX(.3)}}@keyframes paper-copy{0%,2%{transform:translateY(5px);opacity:0}10%,100%{transform:translateY(0);opacity:1}}.era-copy{transform-box:fill-box;animation-delay:var(--copy-phase,0s)}.meter-head,.meter-dot{animation-delay:var(--phase,0s)!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;}.trail{stroke-dashoffset:0!important;}}
-</style><rect x="12" y="12" width="256" height="34" rx="0" fill="#ffef00" stroke="#fff" stroke-width="2"/><text x="140.0" y="35" font-size="17" fill="#000080" font-family="Georgia,'Times New Roman',serif" text-anchor="middle" font-weight="bold">Website</text></svg>
+</style><rect x="12" y="12" width="256" height="38" rx="4" fill="#c6b4ff" stroke="none" filter="url(#shadow)"/><text x="140.0" y="37" font-size="12" fill="#211e2b"  text-anchor="middle" font-weight="bold" letter-spacing="1">WEBSITE</text></svg>

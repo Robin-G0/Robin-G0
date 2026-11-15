@@ -1,29 +1,29 @@
 {
-  "id": "construction",
-  "name": "Under Construction",
-  "era": "1996–2001",
-  "selected": "2026-11-14",
+  "id": "material",
+  "name": "Material",
+  "era": "2014–2020",
+  "selected": "2026-11-15",
   "timezone": "UTC",
   "palette": {
     "light": {
-      "bg": "#10103b",
-      "ink": "#ffffff",
-      "muted": "#d1c5ff",
-      "border": "#8d68ff",
-      "accent": "#62ffff",
-      "soft": "#26265b",
-      "gold": "#ffff55",
-      "goldbg": "#494124"
+      "bg": "#faf9ff",
+      "ink": "#25263d",
+      "muted": "#62647e",
+      "border": "#d5d5e8",
+      "accent": "#5946b2",
+      "soft": "#e9e2ff",
+      "gold": "#956300",
+      "goldbg": "#fff0c7"
     },
     "dark": {
-      "bg": "#080823",
-      "ink": "#ffffff",
-      "muted": "#ccc0ff",
-      "border": "#745be0",
-      "accent": "#5affee",
-      "soft": "#20204b",
-      "gold": "#ffff55",
-      "goldbg": "#443d1d"
+      "bg": "#211e2b",
+      "ink": "#f3edff",
+      "muted": "#c0b6cf",
+      "border": "#534b64",
+      "accent": "#c6b4ff",
+      "soft": "#3e3553",
+      "gold": "#ffcf78",
+      "goldbg": "#51412b"
     }
   }
 }
