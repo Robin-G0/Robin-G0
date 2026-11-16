@@ -1,29 +1,29 @@
 {
-  "id": "material",
-  "name": "Material",
-  "era": "2014–2020",
-  "selected": "2026-11-15",
+  "id": "aero",
+  "name": "Frutiger Aero",
+  "era": "2004–2012",
+  "selected": "2026-11-16",
   "timezone": "UTC",
   "palette": {
     "light": {
-      "bg": "#faf9ff",
-      "ink": "#25263d",
-      "muted": "#62647e",
-      "border": "#d5d5e8",
-      "accent": "#5946b2",
-      "soft": "#e9e2ff",
-      "gold": "#956300",
-      "goldbg": "#fff0c7"
+      "bg": "#effbff",
+      "ink": "#123b50",
+      "muted": "#39667b",
+      "border": "#85bfcc",
+      "accent": "#076ca8",
+      "soft": "#c7e8f5",
+      "gold": "#41651b",
+      "goldbg": "#e1efb4"
     },
     "dark": {
-      "bg": "#211e2b",
-      "ink": "#f3edff",
-      "muted": "#c0b6cf",
-      "border": "#534b64",
-      "accent": "#c6b4ff",
-      "soft": "#3e3553",
-      "gold": "#ffcf78",
-      "goldbg": "#51412b"
+      "bg": "#102c40",
+      "ink": "#e5faff",
+      "muted": "#a3cddc",
+      "border": "#407a95",
+      "accent": "#83dbff",
+      "soft": "#204d65",
+      "gold": "#d1f58e",
+      "goldbg": "#3b542d"
     }
   }
 }
