@@ -18,6 +18,15 @@ else:
     from line_filters import VERSION as LINE_FILTER_VERSION, exclusions
 
 
+# The portfolio site vendors the Motion Input Grid runtime and ships its own arcade;
+# its bytes would swamp the language shares, so it counts everywhere except there.
+LANGUAGE_EXCLUDED_REPOSITORIES = frozenset({'robin-g0.github.io'})
+
+
+def counts_toward_languages(repo):
+    return repo['name'].casefold() not in LANGUAGE_EXCLUDED_REPOSITORIES
+
+
 class CollectionError(RuntimeError):
     """A refresh must fail instead of publishing incomplete totals."""
 
@@ -118,7 +127,8 @@ def collect(user):
     seen = set()
     additions = deletions = 0
     for repo in repos:
-        languages.update(api(f"/repos/{repo['full_name']}/languages"))
+        if counts_toward_languages(repo):
+            languages.update(api(f"/repos/{repo['full_name']}/languages"))
         for commit in commits_for_repo(repo, user):
             if commit['oid'] in seen:
                 continue
