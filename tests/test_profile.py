@@ -7,24 +7,17 @@ from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
 from scripts import render_profile as render
-from scripts.profile_themes import EPOCH, THEMES, theme_for_day, variants
+from scripts.profile_themes import DEFAULT_THEME_ID, EPOCH, THEMES, default_theme, variants
 from scripts.profile_stats import pending
 
 
 class RotationTests(unittest.TestCase):
-    def test_cycles_visit_every_theme_and_never_repeat_consecutive_days(self):
-        expected = {t['id'] for t in THEMES}
-        previous = None
-        for cycle in range(-100, 500):
-            seen = []
-            for offset in range(len(THEMES)):
-                day = EPOCH + timedelta(days=cycle * len(THEMES) + offset)
-                selected = theme_for_day(day)
-                self.assertEqual(selected, theme_for_day(day))
-                self.assertNotEqual(previous, selected['id'])
-                seen.append(selected['id'])
-                previous = selected['id']
-            self.assertEqual(set(seen), expected)
+    def test_the_profile_keeps_the_portfolio_default_theme_on_every_date(self):
+        self.assertEqual(default_theme()['id'], DEFAULT_THEME_ID)
+        self.assertIn(DEFAULT_THEME_ID, {t['id'] for t in THEMES})
+        for offset in range(0, 400, 37):
+            day = EPOCH + timedelta(days=offset)
+            self.assertIn(f"{day.isoformat()}-{DEFAULT_THEME_ID}", render.themed_readme('<img src="assets/mig-light.svg">', default_theme(), day))
 
     def test_all_eras_render_valid_svg_in_both_modes(self):
         data = dict(pending('Robin-G0'), status='ready', updated='2026-11-12',

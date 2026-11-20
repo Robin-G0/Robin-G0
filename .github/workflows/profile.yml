@@ -1,8 +1,17 @@
 name: Refresh profile graphics
 
 on:
-  # Automatic rotation is paused; refreshes can still be run manually.
+  # Daily refresh of the public statistics and their date. The theme no longer
+  # rotates: visitors pick their era on the portfolio, the profile keeps the default.
+  schedule:
+    - cron: '23 6 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/**
+      - tests/**
+      - .github/workflows/profile.yml
 
 permissions:
   contents: read

@@ -1,8 +1,6 @@
-"""Visual eras and a reproducible daily shuffle, without external dependencies."""
+"""Visual eras for the profile and the portfolio, without external dependencies."""
 
 from datetime import date
-import hashlib
-import random
 
 
 def palette(bg, ink, muted, border, accent, soft, gold, goldbg):
@@ -49,21 +47,12 @@ THEMES = [
 EPOCH = date(2026, 1, 1)
 
 
-def shuffled_cycle(cycle):
-    order = list(range(len(THEMES)))
-    seed = hashlib.sha256(f'Robin-G0/visual-eras/v1/{cycle}'.encode()).digest()
-    random.Random(seed).shuffle(order)
-    return order
+# Visitors now choose their era on the portfolio; the profile keeps the portfolio's default.
+DEFAULT_THEME_ID = 'construction'
 
 
-def theme_for_day(day):
-    """Visit each era once per cycle, with no repeat at cycle boundaries."""
-    cycle, index = divmod((day - EPOCH).days, len(THEMES))
-    order = shuffled_cycle(cycle)
-    # Swapping only the first two leaves the previous cycle's last item intact.
-    if order[0] == shuffled_cycle(cycle - 1)[-1]:
-        order[0], order[1] = order[1], order[0]
-    return THEMES[order[index]]
+def default_theme():
+    return next(theme for theme in THEMES if theme['id'] == DEFAULT_THEME_ID)
 
 
 def variants(theme):

@@ -13,12 +13,12 @@ import re
 from xml.sax.saxutils import escape
 
 if __package__:
-    from .profile_themes import THEMES, theme_for_day, variants
+    from .profile_themes import THEMES, default_theme, variants
     from .profile_stats import CollectionError, collect, pending
     from .validate_profile import validate_outputs
     from . import profile_art as art
 else:
-    from profile_themes import THEMES, theme_for_day, variants
+    from profile_themes import THEMES, default_theme, variants
     from profile_stats import CollectionError, collect, pending
     from validate_profile import validate_outputs
     import profile_art as art
@@ -178,7 +178,7 @@ def main():
         selected = date.fromisoformat(json.loads(THEME_STATE.read_text(encoding='utf-8'))['selected'])
     else:
         selected = date.fromisoformat(data['updated']) if data.get('updated') else datetime.now(timezone.utc).date()
-    identity = theme_for_day(selected)
+    identity = default_theme()
     rendered = theme_assets(identity, data, selected)
     state = dict(id=identity['id'], name=identity['name'], era=identity['era'],
                  selected=selected.isoformat(), timezone='UTC',
