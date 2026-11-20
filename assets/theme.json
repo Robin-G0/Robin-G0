@@ -1,29 +1,29 @@
 {
-  "id": "aero",
-  "name": "Frutiger Aero",
-  "era": "2004–2012",
-  "selected": "2026-11-16",
+  "id": "construction",
+  "name": "Under Construction",
+  "era": "1996–2001",
+  "selected": "2026-11-20",
   "timezone": "UTC",
   "palette": {
     "light": {
-      "bg": "#effbff",
-      "ink": "#123b50",
-      "muted": "#39667b",
-      "border": "#85bfcc",
-      "accent": "#076ca8",
-      "soft": "#c7e8f5",
-      "gold": "#41651b",
-      "goldbg": "#e1efb4"
+      "bg": "#10103b",
+      "ink": "#ffffff",
+      "muted": "#d1c5ff",
+      "border": "#8d68ff",
+      "accent": "#62ffff",
+      "soft": "#26265b",
+      "gold": "#ffff55",
+      "goldbg": "#494124"
     },
     "dark": {
-      "bg": "#102c40",
-      "ink": "#e5faff",
-      "muted": "#a3cddc",
-      "border": "#407a95",
-      "accent": "#83dbff",
-      "soft": "#204d65",
-      "gold": "#d1f58e",
-      "goldbg": "#3b542d"
+      "bg": "#080823",
+      "ink": "#ffffff",
+      "muted": "#ccc0ff",
+      "border": "#745be0",
+      "accent": "#5affee",
+      "soft": "#20204b",
+      "gold": "#ffff55",
+      "goldbg": "#443d1d"
     }
   }
 }
